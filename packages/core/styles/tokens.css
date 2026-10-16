@@ -1,0 +1,88 @@
+/**
+ * Take a Tour — design tokens.
+ *
+ * Every visual decision in the library resolves to one of these custom
+ * properties. Nothing below is a magic number repeated in component CSS.
+ *
+ * All variables are prefixed `--tat-` and default on `:root`, so a host page
+ * can override any of them globally, or scope overrides to a tour root.
+ */
+
+:root {
+  /* --- colour: brand ------------------------------------------------- */
+  --tat-color-primary: #4f46e5;
+  --tat-color-primary-hover: #4338ca;
+  --tat-color-primary-contrast: #ffffff;
+  --tat-color-primary-soft: #eef2ff;
+
+  /* --- colour: neutrals (light theme) -------------------------------- */
+  --tat-color-surface: #ffffff;
+  --tat-color-surface-raised: #ffffff;
+  --tat-color-surface-sunken: #f8fafc;
+  --tat-color-background: #ffffff;
+  --tat-color-text: #0f172a;
+  --tat-color-text-muted: #64748b;
+  --tat-color-text-subtle: #94a3b8;
+  --tat-color-border: #e2e8f0;
+  --tat-color-border-strong: #cbd5e1;
+
+  /* --- colour: semantics -------------------------------------------- */
+  --tat-color-focus-ring: #4f46e5;
+  --tat-color-overlay: rgb(15 23 42 / 0.55);
+  --tat-color-spotlight-ring: rgb(79 70 229 / 0.9);
+  --tat-color-shadow: rgb(15 23 42 / 0.12);
+
+  /* --- typography ----------------------------------------------------- */
+  --tat-font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+  --tat-font-size-sm: 0.75rem;
+  --tat-font-size-base: 0.875rem;
+  --tat-font-size-lg: 1rem;
+  --tat-line-height: 1.55;
+  --tat-heading-weight: 600;
+  --tat-heading-tracking: -0.01em;
+
+  /* --- spacing scale --------------------------------------------------- */
+  --tat-space-1: 0.25rem;
+  --tat-space-2: 0.5rem;
+  --tat-space-3: 0.75rem;
+  --tat-space-4: 1rem;
+  --tat-space-5: 1.25rem;
+  --tat-space-6: 1.5rem;
+
+  /* --- shape ----------------------------------------------------------- */
+  --tat-radius-sm: 6px;
+  --tat-radius-md: 10px;
+  --tat-radius-lg: 14px;
+  --tat-radius-full: 999px;
+  --tat-border-width: 1px;
+
+  /* --- elevation ------------------------------------------------------- */
+  --tat-shadow-sm: 0 1px 2px var(--tat-color-shadow);
+  --tat-shadow-md: 0 4px 12px -2px var(--tat-color-shadow);
+  --tat-shadow-lg: 0 16px 40px -12px var(--tat-color-shadow);
+
+  /* --- sizing ---------------------------------------------------------- */
+  --tat-tooltip-width: 320px;
+  --tat-tooltip-max-height: min(70vh, 480px);
+  --tat-modal-width: 440px;
+  --tat-progress-height: 4px;
+
+  /* --- motion ---------------------------------------------------------- */
+  --tat-duration-fast: 120ms;
+  --tat-duration-base: 200ms;
+  --tat-duration-slow: 320ms;
+  --tat-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --tat-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --tat-enter-distance: 6px;
+  --tat-enter-scale: 0.97;
+
+  /* --- z-index layers ---------------------------------------------------
+   * One contiguous stack. Consumers move the whole stack with `--tat-z`.
+   */
+  --tat-z: 9990;
+  --tat-z-overlay: calc(var(--tat-z) + 0);
+  --tat-z-spotlight: calc(var(--tat-z) + 1);
+  --tat-z-content: calc(var(--tat-z) + 2);
+}

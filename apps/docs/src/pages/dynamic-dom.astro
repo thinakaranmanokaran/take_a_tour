@@ -1,0 +1,201 @@
+---
+import DocLayout from "../layouts/DocLayout.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import Table from "../components/Table.astro";
+import Callout from "../components/Callout.astro";
+---
+
+<DocLayout title="Dynamic DOM integration" description="SPA routes, late targets, and missing elements.">
+  <h1>Dynamic DOM integration</h1>
+  <p class="lede">
+    The hard case for a tour library: the router tore down the element you were pointing at, and
+    new markup arrives a frame later.
+  </p>
+
+  <h2>The default already handles it</h2>
+
+  <p>
+    <code>target.missing</code> defaults to <code>"wait"</code>, which waits for the target using a
+    MutationObserver plus a slow polling interval — the observer catches insertions, the interval
+    catches visibility changes that do not mutate the DOM.
+  </p>
+
+  <CodeBlock
+    lang="js"
+    code={`createTour({
+  tourId: "x",
+  target: { missing: "wait", timeout: 5000 },
+  steps: [
+    // Mounted only after the user opens the panel.
+    { tourId: "app.panel", title: "Settings", content: "Everything is here." },
+  ],
+});`}
+  />
+
+  <p>
+    The wait is always cancellable. If the tour is destroyed while waiting, the observer is
+    disconnected, the timer cleared, and the pending promise rejected — nothing is left running.
+  </p>
+
+  <h2>Across route changes</h2>
+
+  <p>
+    A tour that spans routes works, because every step re-resolves its target when it is presented.
+    Combine <code>missing: "wait"</code> with a generous timeout.
+  </p>
+
+  <CodeBlock
+    lang="js"
+    code={`const tour = createTour({
+  tourId: "spa-tour",
+  waitForTarget: true,
+  target: { missing: "wait" },
+  steps: [
+    { tourId: "route.overview", title: "Start here", content: "On the first page." },
+    // Tell the user what to do while the library waits for the next page.
+    { tourId: "route.builder", title: "Now open Reports", content: "This step waits for the new route." },
+    { tourId: "run.schedule", title: "Schedule a run", content: "Also on the Reports page." },
+  ],
+});
+
+// Give up gracefully if the user never navigates.
+setTimeout(() => {
+  if (tour.getState() === "running") tour.stop("timeout");
+}, 60_000);`}
+  />
+
+  <Callout title="Waiting is not scrolling">
+    <p>
+      Waiting for a target says nothing about scrolling. If the element is far below the fold, also
+      set <code>scrollIntoView: true</code> so it is brought into view once it appears.
+    </p>
+  </Callout>
+
+  <h2>Handling the navigation yourself</h2>
+
+  <p>
+    If a tour only makes sense on some routes, drive it from the router. This is usually better UX
+    than making every step wait.
+  </p>
+
+  <CodeBlock
+    lang="js"
+    code={`// React Router
+useEffect(() => {
+  if (!ONBOARDING_ROUTES.includes(location.pathname)) {
+    tourRef.current?.stop("left-route");
+    return;
+  }
+  if (location.pathname === "/dashboard") {
+    tourRef.current?.start();
+  }
+}, [location.pathname]);
+
+// Vue Router
+watch(() => route.path, (path) => {
+  if (path === "/dashboard") tour.start();
+  else if (tour.isActive()) tour.stop("left-route");
+});`}
+  />
+
+  <h2>Per-step strategies</h2>
+
+  <CodeBlock
+    lang="js"
+    code={`steps: [
+  // Optional UI: show it centred if the panel is not open.
+  { tourId: "app.panel", title: "Settings", content: "…", target: { missing: "fallback" } },
+
+  // Not essential: skip it entirely.
+  { tourId: "app.beta", title: "Beta", content: "…", target: { missing: "skip" } },
+
+  // Essential but occasionally slow: wait, then fail loudly.
+  { tourId: "app.checkout", title: "Checkout", content: "…",
+    target: { missing: "wait" }, timeout: 10000 },
+
+  // Should always be there: a bug if it is not.
+  { tourId: "app.header", title: "Header", content: "…", target: { missing: "error" } },
+]`}
+  />
+
+  <Table
+    head={["Strategy", "Behaviour", "Use when"]}
+    rows={[
+      [
+        "<code>wait</code> <span class=\"pill\">default</span>",
+        "Wait up to the timeout, then throw.",
+        "The element is coming, reliably, in a known timeframe.",
+      ],
+      [
+        "<code>skip</code>",
+        "Advance past the step.",
+        "The step is optional and its absence is acceptable.",
+      ],
+      [
+        "<code>fallback</code>",
+        "Show the step centred, no spotlight.",
+        "The message still matters even without the element.",
+      ],
+      [
+        "<code>error</code>",
+        "Throw a <code>TargetError</code>.",
+        "A missing element is a bug you want to hear about.",
+      ],
+    ]}
+  />
+
+  <h2>Per-step timeouts</h2>
+
+  <CodeBlock
+    lang="js"
+    code={`createTour({
+  tourId: "x",
+  target: { missing: "wait", timeout: 3000 },  // default
+  steps: [
+    { tourId: "fast", title: "…", timeout: 1000 },
+    { tourId: "slow", title: "…", timeout: 15000 },
+  ],
+});`}
+  />
+
+  <h2>Waiting on something the router controls</h2>
+
+  <p>
+    When you know the mount is imminent, tell the engine directly through <code>beforeStep</code>
+    rather than making it poll:
+  </p>
+
+  <CodeBlock
+    lang="js"
+    code={`tour.on("beforeStep", async ({ step }) => {
+  if (step.tourId === "route.builder") {
+    await router.navigate("/reports");
+  }
+});`}
+  />
+
+  <h2>Shadow DOM</h2>
+
+  <p>
+    <code>querySelectorAll</code> does not cross a shadow boundary, and neither can this library. If
+    your app uses web components, pass the element directly:
+  </p>
+
+  <CodeBlock
+    lang="js"
+    code={`const host = document.querySelector("my-component");
+const shadow = host.shadowRoot;
+
+createTour({
+  tourId: "shadow-tour",
+  steps: [{ title: "Inside the component", target: { element: shadow.querySelector(".cta") } }],
+});`}
+  />
+
+  <Callout title="Cross-origin iframes" variant="warn">
+    <p>
+      Not supported, and not planned. A tour cannot resolve, measure or position an element in a
+      different document.
+    </p>
+  </Callout>
+</DocLayout>

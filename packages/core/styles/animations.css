@@ -1,0 +1,150 @@
+/**
+ * Take a Tour — motion.
+ *
+ * Every animation uses opacity and transform only. Animating width, height,
+ * top or left forces layout on every frame, which is what makes tour overlays
+ * feel janky on long pages.
+ *
+ * Reduced motion is honoured twice: by the user's OS setting, and by the
+ * `animation: "none"` configuration option.
+ */
+
+@keyframes tat-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tat-enter-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--tat-enter-distance) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tat-enter-top {
+  from {
+    opacity: 0;
+    transform: translateY(var(--tat-enter-distance));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tat-enter-left {
+  from {
+    opacity: 0;
+    transform: translateX(var(--tat-enter-distance));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes tat-enter-right {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--tat-enter-distance) * -1));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes tat-modal-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(var(--tat-enter-scale));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes tat-spotlight-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+/* Entrance states, driven by the `data-side` attribute set at placement time. */
+
+.tat-tooltip--entering[data-side="bottom"] {
+  animation: tat-enter-top var(--tat-duration-base) var(--tat-ease-out);
+}
+
+.tat-tooltip--entering[data-side="top"] {
+  animation: tat-enter-bottom var(--tat-duration-base) var(--tat-ease-out);
+}
+
+.tat-tooltip--entering[data-side="right"] {
+  animation: tat-enter-left var(--tat-duration-base) var(--tat-ease-out);
+}
+
+.tat-tooltip--entering[data-side="left"] {
+  animation: tat-enter-right var(--tat-duration-base) var(--tat-ease-out);
+}
+
+.tat-modal--entering {
+  animation: tat-modal-in var(--tat-duration-base) var(--tat-ease-out);
+}
+
+/**
+ * `animation: "none"` in the tour configuration.
+ *
+ * The renderer also strips entrance classes in JavaScript for environments
+ * where a class change is not enough; this block is the CSS-level guarantee.
+ */
+.tat-root[data-tat-animation="none"] .tat-tooltip,
+.tat-root[data-tat-animation="none"] .tat-modal,
+.tat-root[data-tat-animation="none"] .tat-overlay,
+.tat-root[data-tat-animation="none"] .tat-spotlight {
+  animation: none !important;
+  transition: none !important;
+}
+
+.tat-root[data-tat-animation="instant"] .tat-tooltip--entering,
+.tat-root[data-tat-animation="instant"] .tat-modal--entering {
+  animation-duration: 1ms;
+}
+
+/* --- reduced motion -------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .tat-overlay,
+  .tat-spotlight,
+  .tat-tooltip,
+  .tat-modal,
+  .tat-progress__fill,
+  .tat-btn {
+    transition-duration: 1ms !important;
+  }
+
+  .tat-tooltip--entering,
+  .tat-modal--entering,
+  .tat-spotlight--pulse {
+    animation: none !important;
+  }
+
+  /* Preserve the end state of every entrance so content is never invisible. */
+  .tat-tooltip--entering,
+  .tat-modal--entering {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Take a Tour — layout fixtures</title>
+    <link rel="stylesheet" href="/lib/styles/index.css" />
+    <link rel="stylesheet" href="./fixture.css" />
+  </head>
+  <body>
+    <main id="page">
+      <h1 id="heading">Layout fixtures</h1>
+
+      <!-- A tall page so scrolling has somewhere to go. -->
+      <div class="spacer">top</div>
+
+      <div class="grid">
+        <button id="target-top" data-tour-id="f.top">Top edge target</button>
+        <button id="target-left" data-tour-id="f.left">Left edge target</button>
+        <button id="target-right" data-tour-id="f.right">Right edge target</button>
+        <button id="target-bottom" data-tour-id="f.bottom">Bottom edge target</button>
+        <button id="target-center" data-tour-id="f.center">Centre target</button>
+        <button id="target-late" data-tour-id="f.late">Late target</button>
+        <button id="target-dup-1" data-tour-id="f.dup">Duplicate 1</button>
+        <button id="target-dup-2" data-tour-id="f.dup">Duplicate 2</button>
+        <button id="target-dotted" data-tour-id="f.with.dots">Dotted identifier</button>
+        <button id="target-quote" data-tour-id='f.weird "id"'>Quoted identifier</button>
+        <button id="launcher" data-tour-id="f.launcher">Launch tour</button>
+      </div>
+
+      <!-- A nested scroll container: positioning must follow it. -->
+      <div id="scroll-box" class="scroll-box">
+        <div class="scroll-box__inner">
+          <div class="scroll-box__tall">scroll me</div>
+          <button id="target-nested" data-tour-id="f.nested">Nested scroll target</button>
+        </div>
+      </div>
+
+      <div class="spacer">bottom</div>
+    </main>
+
+    <!--
+      Edge targets are pinned to the viewport so tests do not have to depend on
+      scroll position to reach a boundary.
+    -->
+    <button id="target-pinned-bottom" class="pinned pinned--bottom" data-tour-id="f.pinnedBottom">
+      Pinned bottom
+    </button>
+    <button id="target-pinned-top" class="pinned pinned--top" data-tour-id="f.pinnedTop">
+      Pinned top
+    </button>
+    <button id="target-pinned-left" class="pinned pinned--left" data-tour-id="f.pinnedLeft">
+      Pinned left
+    </button>
+    <button id="target-pinned-right" class="pinned pinned--right" data-tour-id="f.pinnedRight">
+      Pinned right
+    </button>
+
+    <script type="module" src="./fixture.js"></script>
+  </body>
+</html>

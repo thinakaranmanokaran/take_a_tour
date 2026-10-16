@@ -1,0 +1,21 @@
+{
+  "name": "@take-a-tour/example-react",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Take a Tour in React, with correct effect cleanup and late-mounted targets.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@take-a-tour/core": "*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.7"
+  }
+}

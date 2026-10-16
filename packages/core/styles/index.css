@@ -1,0 +1,15 @@
+/**
+ * Take a Tour — public stylesheet entry point.
+ *
+ *   import '@take-a-tour/core/styles.css';
+ *
+ * Import order matters: tokens define the variables, themes assign values for
+ * a colour scheme, components consume them, motion and accessibility layer on
+ * top.
+ */
+
+@import "./tokens.css";
+@import "./themes.css";
+@import "./components.css";
+@import "./animations.css";
+@import "./a11y.css";

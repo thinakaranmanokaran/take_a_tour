@@ -1,1 +1,40 @@
 referance
+
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# build output
+dist/
+build/
+.output/
+.astro/
+
+# test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+
+# caches
+.eslintcache
+*.tsbuildinfo
+.cache/
+.vite/
+
+# environment
+.env
+.env.local
+.env.*.local
+
+# os
+.DS_Store
+Thumbs.db
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/

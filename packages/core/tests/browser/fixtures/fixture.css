@@ -1,0 +1,119 @@
+:root {
+  --edge: #cbd5e1;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+#page {
+  padding: 0 24px;
+}
+
+h1 {
+  margin: 16px 0;
+  font-size: 1.125rem;
+}
+
+.spacer {
+  display: grid;
+  place-items: center;
+  height: 60vh;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  border-top: 1px dashed var(--edge);
+  border-bottom: 1px dashed var(--edge);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.grid button {
+  padding: 12px;
+  font: inherit;
+  font-size: 0.8125rem;
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.scroll-box {
+  height: 220px;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+}
+
+.scroll-box__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scroll-box__tall {
+  height: 400px;
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.scroll-box button {
+  padding: 12px;
+  font: inherit;
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+}
+
+/* Edge targets pinned to the viewport, so boundary tests need no scrolling. */
+.pinned {
+  position: fixed;
+  z-index: 1;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 0.8125rem;
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+}
+
+.pinned--bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.pinned--top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.pinned--left {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.pinned--right {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}

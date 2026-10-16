@@ -1,0 +1,57 @@
+{
+  "name": "@take-a-tour/core",
+  "version": "0.1.0",
+  "description": "Zero-dependency, framework-agnostic interactive product tours and contextual onboarding for any website.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./src/index.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./src/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./src/index.js"
+    },
+    "./styles.css": "./styles/index.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "dist",
+    "styles",
+    "types",
+    "README.md",
+    "LICENSE",
+    "!dist/**/*.map"
+  ],
+  "keywords": [
+    "tour",
+    "onboarding",
+    "walkthrough",
+    "product-tour",
+    "guided-tour",
+    "spotlight",
+    "tooltip",
+    "zero-dependency",
+    "no-dependencies",
+    "accessibility"
+  ],
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:browser": "playwright test",
+    "test:browser:docs": "playwright test --config playwright.docs.config.js",
+    "typecheck:types": "tsc --noEmit -p tsconfig.types-test.json",
+    "test:consumer": "node scripts/consumer-install-test.mjs",
+    "pack:check": "node scripts/pack-check.mjs"
+  }
+}

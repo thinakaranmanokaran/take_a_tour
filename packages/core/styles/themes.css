@@ -1,0 +1,86 @@
+/**
+ * Take a Tour — themes.
+ *
+ * Light, dark, and system. The active theme is set on the tour root as
+ * `data-tat-theme`, so two tours on a page cannot fight over a global class.
+ * `system` resolves to whichever concrete theme matches the OS preference.
+ */
+
+.tat-root[data-tat-theme="light"] {
+  --tat-color-primary: #4f46e5;
+  --tat-color-primary-hover: #4338ca;
+  --tat-color-primary-soft: #eef2ff;
+
+  --tat-color-surface: #ffffff;
+  --tat-color-surface-raised: #ffffff;
+  --tat-color-surface-sunken: #f8fafc;
+  --tat-color-background: #ffffff;
+  --tat-color-text: #0f172a;
+  --tat-color-text-muted: #5b6b82;
+  --tat-color-text-subtle: #94a3b8;
+  --tat-color-border: #e2e8f0;
+  --tat-color-border-strong: #cbd5e1;
+
+  --tat-color-focus-ring: #4f46e5;
+  --tat-color-overlay: rgb(15 23 42 / 0.5);
+  --tat-color-shadow: rgb(15 23 42 / 0.14);
+
+  --tat-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.08);
+  --tat-shadow-md: 0 4px 12px -2px rgb(15 23 42 / 0.1);
+  --tat-shadow-lg: 0 16px 40px -12px rgb(15 23 42 / 0.18);
+}
+
+.tat-root[data-tat-theme="dark"] {
+  --tat-color-primary: #818cf8;
+  --tat-color-primary-hover: #a5b4fc;
+  --tat-color-primary-soft: #1e1b4b;
+
+  --tat-color-surface: #111827;
+  --tat-color-surface-raised: #1f2937;
+  --tat-color-surface-sunken: #0b1220;
+  --tat-color-background: #111827;
+  --tat-color-text: #f1f5f9;
+  --tat-color-text-muted: #a7b3c4;
+  --tat-color-text-subtle: #7b8899;
+  --tat-color-border: #2b3648;
+  --tat-color-border-strong: #3d4a5f;
+
+  --tat-color-focus-ring: #a5b4fc;
+  --tat-color-overlay: rgb(2 6 23 / 0.66);
+  --tat-color-shadow: rgb(0 0 0 / 0.5);
+
+  --tat-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --tat-shadow-md: 0 4px 14px -2px rgb(0 0 0 / 0.5);
+  --tat-shadow-lg: 0 20px 44px -12px rgb(0 0 0 / 0.65);
+}
+
+/**
+ * System theme, honoured when the consumer has not pinned a concrete theme.
+ * The root attribute is set to a resolved theme at runtime; this block keeps
+ * the behaviour correct even before JavaScript settles the attribute.
+ */
+@media (prefers-color-scheme: dark) {
+  .tat-root[data-tat-theme="system"] {
+    --tat-color-primary: #818cf8;
+    --tat-color-primary-hover: #a5b4fc;
+    --tat-color-primary-soft: #1e1b4b;
+
+    --tat-color-surface: #111827;
+    --tat-color-surface-raised: #1f2937;
+    --tat-color-surface-sunken: #0b1220;
+    --tat-color-background: #111827;
+    --tat-color-text: #f1f5f9;
+    --tat-color-text-muted: #a7b3c4;
+    --tat-color-text-subtle: #7b8899;
+    --tat-color-border: #2b3648;
+    --tat-color-border-strong: #3d4a5f;
+
+    --tat-color-focus-ring: #a5b4fc;
+    --tat-color-overlay: rgb(2 6 23 / 0.66);
+    --tat-color-shadow: rgb(0 0 0 / 0.5);
+
+    --tat-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --tat-shadow-md: 0 4px 14px -2px rgb(0 0 0 / 0.5);
+    --tat-shadow-lg: 0 20px 44px -12px rgb(0 0 0 / 0.65);
+  }
+}

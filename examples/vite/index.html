@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Take a Tour — Vite example</title>
+  </head>
+  <body>
+    <main class="page">
+      <header class="page__header">
+        <h1>Vite + Take a Tour</h1>
+        <div class="page__actions">
+          <div class="segmented" role="group" aria-label="Theme">
+            <button data-theme="light" class="segmented__item">Light</button>
+            <button data-theme="dark" class="segmented__item">Dark</button>
+            <button data-theme="system" class="segmented__item">System</button>
+          </div>
+          <button id="start" class="btn btn--primary">Start tour</button>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>Bundled build</h2>
+        <p class="muted">This page is built by Vite and imports the library by name.</p>
+        <button class="btn" data-tour-id="vite.button">Primary action</button>
+        <button class="btn" data-tour-id="vite.secondary">Secondary</button>
+      </section>
+
+      <section class="card">
+        <h2>Custom theme</h2>
+        <p class="muted">
+          Every design decision is a CSS custom property. Change them here to restyle the tour.
+        </p>
+        <label class="field">
+          <span>Brand colour</span>
+          <input type="color" id="brand" value="#4f46e5" />
+        </label>
+        <label class="field">
+          <span>Tooltip width</span>
+          <input type="range" id="width" min="220" max="480" value="320" />
+        </label>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

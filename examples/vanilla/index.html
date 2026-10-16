@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Take a Tour — vanilla example</title>
+    <link rel="stylesheet" href="./demo.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1>Acme Analytics</h1>
+        <button id="start-tour" class="button button--primary">Take the tour</button>
+      </header>
+
+      <div class="app__body">
+        <nav class="sidebar" data-tour-id="home.sidebar" aria-label="Primary">
+          <a href="#overview" class="nav-link nav-link--active">Overview</a>
+          <a href="#reports" class="nav-link">Reports</a>
+          <a href="#audience" class="nav-link">Audience</a>
+          <a href="#settings" class="nav-link">Settings</a>
+        </nav>
+
+        <section class="content">
+          <div class="stat-row">
+            <div class="stat" data-tour-id="home.stats">
+              <span class="stat__label">Visitors</span>
+              <span class="stat__value">48,219</span>
+            </div>
+            <div class="stat">
+              <span class="stat__label">Conversion</span>
+              <span class="stat__value">3.4%</span>
+            </div>
+            <div class="stat">
+              <span class="stat__label">Revenue</span>
+              <span class="stat__value">$12,904</span>
+            </div>
+          </div>
+
+          <div class="chart" data-tour-id="home.chart" role="img" aria-label="Traffic chart">
+            <div class="chart__bars">
+              <span style="height: 42%"></span><span style="height: 68%"></span>
+              <span style="height: 55%"></span><span style="height: 88%"></span>
+              <span style="height: 73%"></span><span style="height: 96%"></span>
+              <span style="height: 81%"></span>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <input
+              type="search"
+              class="input"
+              placeholder="Search reports…"
+              data-tour-id="home.search"
+              aria-label="Search reports"
+            />
+            <button class="button" data-tour-id="home.filter">Filter</button>
+            <button class="button button--primary" data-tour-id="home.cta">Create project</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="./demo.js"></script>
+  </body>
+</html>

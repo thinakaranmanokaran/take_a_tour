@@ -1,0 +1,133 @@
+---
+/**
+ * Code block with a copy button and dependency-free token colouring.
+ *
+ * A syntax highlighter would be ~100kB of JavaScript for marginal benefit in a
+ * documentation site, so highlighting is done at build time with a small
+ * regular-expression pass. It handles comments, strings, numbers, booleans and
+ * property keys — enough to scan a snippet, and it cannot execute anything.
+ */
+interface Props {
+  code: string;
+  lang?: "js" | "json" | "html" | "css" | "bash";
+  title?: string;
+}
+
+const { code, lang = "js", title } = Astro.props;
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+function highlight(source: string): string {
+  const patterns: { cls: string; re: RegExp }[] = [
+    { cls: "tok-com", re: /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)/y },
+    { cls: "tok-str", re: /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/y },
+    { cls: "tok-bool", re: /\b(true|false|null|undefined)\b/y },
+    { cls: "tok-num", re: /\b\d+(\.\d+)?\b/y },
+    { cls: "tok-key", re: /([A-Za-z_$][\w$]*)(?=\s*:)/y },
+  ];
+
+  let out = "";
+  let index = 0;
+
+  while (index < source.length) {
+    let matched = false;
+
+    for (const { cls, re } of patterns) {
+      re.lastIndex = index;
+      const match = re.exec(source);
+      if (match && match.index === index) {
+        out += `<span class="${cls}">${escapeHtml(match[0])}</span>`;
+        index += match[0].length;
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      out += escapeHtml(source[index]);
+      index += 1;
+    }
+  }
+
+  return out;
+}
+
+const highlighted = lang === "bash" ? escapeHtml(code) : highlight(code);
+---
+
+<div class="code-block">
+  {
+    title && (
+      <div class="code-block__header">
+        <span>{title}</span>
+        <span class="code-block__lang">{lang}</span>
+      </div>
+    )
+  }
+  <pre data-lang={lang}><code set:html={highlighted} /></pre>
+</div>
+
+<button class="copy-button" type="button" data-copy aria-label="Copy code to clipboard">
+  Copy
+</button>
+
+<script>
+  // Delegated once: any block added later still works.
+  document.addEventListener("click", async (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-copy]");
+    if (!button) return;
+
+    const block = button.closest(".code-block") ?? button.parentElement;
+    const code = block?.querySelector("code")?.textContent ?? "";
+
+    try {
+      await navigator.clipboard.writeText(code);
+      button.textContent = "Copied";
+    } catch {
+      button.textContent = "Press Ctrl+C";
+    }
+
+    setTimeout(() => {
+      button.textContent = "Copy";
+    }, 1600);
+  });
+</script>
+
+<style>
+  .code-block {
+    position: relative;
+    margin: 16px 0;
+  }
+
+  .code-block pre {
+    margin: 0;
+  }
+
+  .code-block__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 14px;
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+
+  .code-block__header + pre {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
+
+  .code-block__lang {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>

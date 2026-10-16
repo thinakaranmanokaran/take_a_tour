@@ -1,0 +1,12 @@
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    environment: "jsdom",
+    include: ["tests/unit/**/*.test.js", "tests/integration/**/*.test.js"],
+    passWithNoTests: true,
+    globals: false,
+    restoreMocks: true,
+    clearMocks: true,
+  },
+});

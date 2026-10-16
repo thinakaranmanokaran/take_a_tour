@@ -1,0 +1,425 @@
+/**
+ * Take a Tour — components.
+ *
+ * One visual language: the same radius, shadow, spacing scale and transition
+ * timing for every component. Class names are all `tat-` prefixed and scoped
+ * under `.tat-root`, so nothing leaks into the host page.
+ */
+
+.tat-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--tat-z);
+  /* The root itself must never intercept pointer events; only its children do. */
+  pointer-events: none;
+  font-family: var(--tat-font-family);
+  color: var(--tat-color-text);
+  font-size: var(--tat-font-size-base);
+  line-height: var(--tat-line-height);
+  -webkit-font-smoothing: antialiased;
+}
+
+.tat-root *,
+.tat-root *::before,
+.tat-root *::after {
+  box-sizing: border-box;
+}
+
+/* --- overlay ------------------------------------------------------------ */
+
+.tat-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--tat-z-overlay);
+  background: var(--tat-color-overlay);
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity var(--tat-duration-base) var(--tat-ease-out);
+}
+
+.tat-overlay--visible {
+  opacity: 1;
+}
+
+/* --- spotlight ---------------------------------------------------------- */
+
+.tat-spotlight {
+  position: absolute;
+  z-index: var(--tat-z-spotlight);
+  border-radius: var(--tat-radius-md);
+  box-shadow:
+    0 0 0 9999px var(--tat-color-overlay),
+    0 0 0 var(--tat-focus-ring-width, 3px) var(--tat-color-spotlight-ring);
+  pointer-events: none;
+  transition:
+    top var(--tat-duration-base) var(--tat-ease-out),
+    left var(--tat-duration-base) var(--tat-ease-out),
+    width var(--tat-duration-base) var(--tat-ease-out),
+    height var(--tat-duration-base) var(--tat-ease-out);
+}
+
+.tat-spotlight--pulse {
+  animation: tat-spotlight-pulse 2.4s var(--tat-ease-in-out) infinite;
+}
+
+/* --- tooltip ------------------------------------------------------------ */
+
+.tat-tooltip {
+  position: absolute;
+  z-index: var(--tat-z-content);
+  top: 0;
+  left: 0;
+  width: var(--tat-tooltip-width);
+  max-width: calc(100vw - 2 * var(--tat-space-4));
+  max-height: var(--tat-tooltip-max-height);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden auto;
+  pointer-events: auto;
+  background: var(--tat-color-surface);
+  border: var(--tat-border-width) solid var(--tat-color-border);
+  border-radius: var(--tat-radius-lg);
+  box-shadow: var(--tat-shadow-lg);
+  transition:
+    opacity var(--tat-duration-base) var(--tat-ease-out),
+    transform var(--tat-duration-base) var(--tat-ease-out);
+}
+
+.tat-tooltip__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--tat-space-2);
+  padding: var(--tat-space-4) var(--tat-space-5) 0;
+}
+
+.tat-tooltip__body {
+  padding: var(--tat-space-3) var(--tat-space-5) var(--tat-space-4);
+}
+
+.tat-tooltip__title {
+  margin: 0;
+  font-size: var(--tat-font-size-lg);
+  font-weight: var(--tat-heading-weight);
+  letter-spacing: var(--tat-heading-tracking);
+  line-height: 1.35;
+  color: var(--tat-color-text);
+}
+
+.tat-tooltip__content {
+  margin: var(--tat-space-2) 0 0;
+  color: var(--tat-color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.tat-tooltip__content > :first-child {
+  margin-top: 0;
+}
+
+.tat-tooltip__content > :last-child {
+  margin-bottom: 0;
+}
+
+.tat-tooltip__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tat-space-3);
+  padding: var(--tat-space-3) var(--tat-space-4);
+  border-top: var(--tat-border-width) solid var(--tat-color-border);
+  background: var(--tat-color-surface-sunken);
+}
+
+.tat-tooltip__counter {
+  font-size: var(--tat-font-size-sm);
+  color: var(--tat-color-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* --- arrow -------------------------------------------------------------- */
+
+.tat-arrow {
+  position: absolute;
+  width: var(--tat-arrow-size, 10px);
+  height: var(--tat-arrow-size, 10px);
+  background: var(--tat-color-surface);
+  border: var(--tat-border-width) solid var(--tat-color-border);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.tat-tooltip[data-side="bottom"] .tat-arrow,
+.tat-tooltip[data-side="center"] .tat-arrow {
+  top: calc(var(--tat-arrow-size, 10px) / -2 - var(--tat-border-width));
+  border-right: none;
+  border-bottom: none;
+}
+
+.tat-tooltip[data-side="top"] .tat-arrow {
+  bottom: calc(var(--tat-arrow-size, 10px) / -2 - var(--tat-border-width));
+  border-left: none;
+  border-top: none;
+}
+
+.tat-tooltip[data-side="right"] .tat-arrow {
+  left: calc(var(--tat-arrow-size, 10px) / -2 - var(--tat-border-width));
+  border-right: none;
+  border-top: none;
+}
+
+.tat-tooltip[data-side="left"] .tat-arrow {
+  right: calc(var(--tat-arrow-size, 10px) / -2 - var(--tat-border-width));
+  border-left: none;
+  border-bottom: none;
+}
+
+.tat-arrow[hidden] {
+  display: none;
+}
+
+/* --- modal -------------------------------------------------------------- */
+
+.tat-modal {
+  position: absolute;
+  z-index: var(--tat-z-content);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--tat-modal-width);
+  max-width: calc(100vw - 2 * var(--tat-space-6));
+  max-height: var(--tat-tooltip-max-height);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden auto;
+  pointer-events: auto;
+  background: var(--tat-color-surface);
+  border: var(--tat-border-width) solid var(--tat-color-border);
+  border-radius: var(--tat-radius-lg);
+  box-shadow: var(--tat-shadow-lg);
+  transition:
+    opacity var(--tat-duration-base) var(--tat-ease-out),
+    transform var(--tat-duration-base) var(--tat-ease-out);
+}
+
+.tat-modal__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: var(--tat-space-5) var(--tat-space-5) 0;
+  border-radius: var(--tat-radius-full);
+  background: var(--tat-color-primary-soft);
+  color: var(--tat-color-primary);
+}
+
+/* --- progress ----------------------------------------------------------- */
+
+.tat-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tat-space-2);
+  padding: 0 var(--tat-space-5) var(--tat-space-3);
+}
+
+.tat-progress__bar {
+  height: var(--tat-progress-height);
+  border-radius: var(--tat-radius-full);
+  background: var(--tat-color-border);
+  overflow: hidden;
+}
+
+.tat-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--tat-color-primary);
+  transition: width var(--tat-duration-slow) var(--tat-ease-out);
+}
+
+.tat-progress__dots {
+  display: flex;
+  gap: var(--tat-space-1);
+}
+
+.tat-progress__dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: var(--tat-radius-full);
+  background: var(--tat-color-border-strong);
+  cursor: pointer;
+  transition:
+    background var(--tat-duration-fast) var(--tat-ease-out),
+    width var(--tat-duration-fast) var(--tat-ease-out);
+}
+
+.tat-progress__dot--active {
+  width: 18px;
+  background: var(--tat-color-primary);
+}
+
+/* --- controls ----------------------------------------------------------- */
+
+.tat-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--tat-space-2);
+  margin-left: auto;
+}
+
+.tat-controls__group {
+  display: flex;
+  align-items: center;
+  gap: var(--tat-space-2);
+}
+
+.tat-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tat-space-1);
+  min-height: 32px;
+  padding: 0 var(--tat-space-3);
+  font: inherit;
+  font-size: var(--tat-font-size-base);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--tat-color-text);
+  background: transparent;
+  border: var(--tat-border-width) solid transparent;
+  border-radius: var(--tat-radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--tat-duration-fast) var(--tat-ease-out),
+    color var(--tat-duration-fast) var(--tat-ease-out),
+    border-color var(--tat-duration-fast) var(--tat-ease-out),
+    transform var(--tat-duration-fast) var(--tat-ease-out);
+}
+
+.tat-btn:hover {
+  background: var(--tat-color-surface-sunken);
+}
+
+.tat-btn:active {
+  transform: translateY(1px);
+}
+
+.tat-btn:focus-visible {
+  outline: 2px solid var(--tat-color-focus-ring);
+  outline-offset: 2px;
+}
+
+.tat-btn--primary {
+  color: var(--tat-color-primary-contrast);
+  background: var(--tat-color-primary);
+  border-color: var(--tat-color-primary);
+}
+
+.tat-btn--primary:hover {
+  background: var(--tat-color-primary-hover);
+  border-color: var(--tat-color-primary-hover);
+}
+
+.tat-btn--ghost {
+  color: var(--tat-color-text-muted);
+}
+
+.tat-btn--ghost:hover {
+  color: var(--tat-color-text);
+}
+
+.tat-btn--skip {
+  margin-right: auto;
+}
+
+.tat-btn--icon {
+  width: 28px;
+  min-height: 28px;
+  padding: 0;
+  color: var(--tat-color-text-muted);
+  border-radius: var(--tat-radius-sm);
+}
+
+.tat-btn--icon:hover {
+  color: var(--tat-color-text);
+}
+
+.tat-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+
+.tat-btn svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex: none;
+}
+
+/* --- custom action area -------------------------------------------------- */
+
+.tat-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tat-space-2);
+  padding: 0 var(--tat-space-5) var(--tat-space-4);
+}
+
+/* --- screen-reader only live region --------------------------------------- */
+
+.tat-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- paused state --------------------------------------------------------- */
+
+.tat-root[data-tat-state="paused"] {
+  /* Paused tours stay mounted but stop accepting input. */
+  pointer-events: none;
+}
+
+.tat-root[data-tat-state="paused"] .tat-tooltip,
+.tat-root[data-tat-state="paused"] .tat-modal {
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* --- responsive ------------------------------------------------------------ */
+
+@media (max-width: 480px) {
+  .tat-root {
+    --tat-tooltip-width: calc(100vw - 2 * var(--tat-space-4));
+    --tat-modal-width: calc(100vw - 2 * var(--tat-space-4));
+  }
+
+  .tat-tooltip__footer {
+    flex-wrap: wrap;
+  }
+
+  .tat-btn--skip {
+    margin-right: 0;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .tat-tooltip,
+  .tat-modal {
+    border-color: var(--tat-color-border-strong);
+  }
+
+  .tat-btn:focus-visible {
+    outline-width: 3px;
+  }
+}

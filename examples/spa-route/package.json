@@ -1,0 +1,16 @@
+{
+  "name": "@take-a-tour/example-spa-route",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Surviving route changes: a tour that re-targets after the router swaps the DOM.",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@take-a-tour/core": "*"
+  },
+  "devDependencies": {
+    "vite": "^6.0.7"
+  }
+}

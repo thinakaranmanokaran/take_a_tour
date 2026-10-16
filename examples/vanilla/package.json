@@ -1,0 +1,16 @@
+{
+  "name": "@take-a-tour/example-vanilla",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Take a Tour with no build step at all.",
+  "scripts": {
+    "start": "vite"
+  },
+  "dependencies": {
+    "@take-a-tour/core": "*"
+  },
+  "devDependencies": {
+    "vite": "^6.0.7"
+  }
+}

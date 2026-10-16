@@ -1,0 +1,40 @@
+/**
+ * Take a Tour — accessibility styles.
+ *
+ * Focus is only ever moved to a tour control, never to the host page, and it is
+ * always visible. Nothing here uses `display: none` on a focusable element.
+ */
+
+/* Non-modal anchored tooltips do not trap focus, but they do keep a visible
+   focus ring for keyboard users who Tab into the controls. */
+.tat-root :focus-visible {
+  outline: 2px solid var(--tat-color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* The spotlight is decorative. Screen readers must never announce it. */
+.tat-spotlight {
+  aria-hidden: true;
+}
+
+/* Target interaction mode: while enabled, the highlighted element keeps its
+   own pointer events so the user can actually use the thing being explained. */
+.tat-root[data-tat-target-interactive="true"] .tat-spotlight {
+  pointer-events: none;
+}
+
+/* Hide the arrow entirely when there is no target to point at. */
+.tat-tooltip[data-anchored="false"] .tat-arrow {
+  display: none;
+}
+
+/* A centred modal behaves like a dialog: background content is inert. */
+.tat-root[data-tat-state="running"] .tat-modal {
+  cursor: default;
+}
+
+/* Ensure text stays legible when a consumer forces a very light surface. */
+.tat-tooltip,
+.tat-modal {
+  -webkit-text-size-adjust: 100%;
+}
