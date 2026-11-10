@@ -115,6 +115,29 @@ test("documentation pages ship heading ids and a working table of contents", asy
   }
 });
 
+test("pages hydrate without console errors or page errors", async ({ page }) => {
+  // React reports hydration mismatches through `reportError`, which Playwright
+  // surfaces as a page error rather than a console message — listen for both.
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(String(error)));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+
+  for (const path of [
+    "/take_a_tour/",
+    "/take_a_tour/examples/",
+    "/take_a_tour/playground/",
+    "/take_a_tour/docs/configuration/",
+  ]) {
+    await page.goto(path);
+    // `client:idle` islands hydrate promptly; a mismatch would surface here.
+    await page.waitForTimeout(2000);
+  }
+
+  expect(errors, `browser errors:\n${errors.join("\n")}`).toEqual([]);
+});
+
 test("unknown paths render the designed 404 page with a 404 status", async ({ page }) => {
   const response = await page.goto("/take_a_tour/this-page-does-not-exist/");
 

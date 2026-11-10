@@ -352,6 +352,38 @@ export default function Configuration() {
         ]}
       />
 
+      <h2>Images and video</h2>
+
+      <p>
+        Step text is inserted with <code>textContent</code> — plain text only. To show an image, an
+        animated GIF or a looping video inside a step, opt the tour into trusted markup and supply
+        the element yourself in <code>unsafeContent</code>:
+      </p>
+
+      <CodeBlock
+        lang="js"
+        code={`createTour({
+  tourId: "media",
+  unsafeHTML: true, // opt in, per tour
+  steps: [
+    {
+      tourId: "demo.gif",
+      title: "A real screenshot",
+      content: "The same flow, three seconds later.",
+      unsafeContent: '<img src="/media/sharing.gif" alt="Adding a project, then sharing it with the team" width="640" height="360">',
+    },
+  ],
+});`}
+      />
+
+      <p>
+        The markup is parsed with <code>innerHTML</code>, so it can load remote resources. Use it
+        only for markup you authored yourself — see <a href={url("/docs/security/")}>Security</a>.
+        When you control the asset, a muted, looping <code>&lt;video&gt;</code> is lighter than a
+        large GIF, and every image needs a text alternative. There is no separate media field: the
+        library renders text, and this is the only supported way to embed anything richer.
+      </p>
+
       <h2>Placements</h2>
 
       <CodeBlock

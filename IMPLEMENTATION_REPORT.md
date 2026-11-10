@@ -587,11 +587,57 @@ library chunk is still fetched only after starting the hero tour.
 | examples | 19 | 253.2 kB | 60.0 kB | 481.2 kB | 556 ms | 0.0191 |
 | playground | 18 | 244.7 kB | 60.0 kB | 436.4 kB | 500 ms | 0.0012 |
 
+### Follow-up after the Lighthouse review
+
+The first Lighthouse run after Phase 10 exposed a regression the DOM checks
+could not see: every documentation page threw two React `#418` hydration
+mismatches. `useSectionHeadings` read the article's headings during its first
+client render, but the docs TOC island renders no list at build time — the
+server's markup and the first client render disagreed. The guard that was
+supposed to prevent this only existed inside the function that already needed
+the DOM, so it never applied to the docs case. `readHeadings` now always reads
+(the effect's behaviour), and a separate `initialHeadings` decides what the
+first render may use: the prerendered list only when the build step's
+`prerendered` selector is actually in the DOM, otherwise nothing. The site
+rail still adopts its server-rendered list; the docs TOC still fills after
+mount, now without a mismatch. A new browser test loads home, examples, the
+playground and a docs page while listening for both `pageerror` (React reports
+hydration mismatches through `reportError`, not the console) and console
+errors; it fails on either.
+
+The same review checked the documentation against the source and found two
+pages that would mislead a reader: Installation and Getting started told people
+to `npm install @take-a-tour/core` without saying the package is not published
+(both now carry a "not published yet" callout with the repository path), and
+Migration demonstrated an upgrade check against `0.2.0`, which does not exist
+(now `npm outdated`/`npm ls`, with an explanation that there is no upgrade to
+perform yet). Configuration gained an "Images and video" section documenting
+the only supported way to put media in a step — `unsafeHTML: true` plus
+`unsafeContent` — including the security boundary and the absence of a
+first-class media field.
+
+Lighthouse 13.6.0, real Chrome, against the built site over the same static
+server the browser tests use:
+
+| Page / preset | Perf | A11y | Best practices | SEO | Notes |
+| ------------- | ---- | ---- | -------------- | --- | ----- |
+| Docs (configuration), mobile | 74 | 100 | 100 | 100 | console errors 0; LCP 1.8 s, TBT 1.47 s |
+| Home, desktop | 87 | 100 | 100 | 100 | LCP 0.7 s, CLS 0.014, TBT 0.3 s |
+| Home, mobile | 64 | 100 | 100 | 100 | LCP 3.1 s, TBT 2.29 s (4× CPU throttling) |
+
+Performance is the one category that will not reach 100 with this
+architecture. The site is a confirmed JSX build, so every route ships the React
+runtime and hydrates islands; under Lighthouse's mobile CPU throttle, hydration
+and style/layout dominate and TBT alone caps the score. The site's lab numbers
+are healthy (LCP under a second on desktop, CLS at or near zero), and the
+remaining weight is the agreed cost of the pure-JSX requirement, not a defect.
+The other three categories are 100 on every page measured.
+
 ---
 
 ## Bugs found across all phases
 
-Twenty-two implementation bugs — nine in the library and thirteen in the site —
+Twenty-five implementation bugs — nine in the library and sixteen in the site —
 each caught by a check that was run before the fix:
 
 | # | Bug | Severity |
@@ -618,6 +664,9 @@ each caught by a check that was run before the fix:
 | 20 | The 404 digits lost their brand colour to a higher-specificity paragraph rule | Low |
 | 21 | The rail's re-open control, `position: fixed` inside the sticky rail, was painted beneath page content in Chromium — immune to `z-index` | Medium |
 | 22 | The collapsed three-column rule meant for docs also matched the site layout, leaving a phantom grid track (an empty strip beside the content) | Low |
+| 23 | The docs TOC island read headings during its first client render although the server rendered none — two React `#418` hydration mismatches per documentation page | Medium |
+| 24 | Installation and Getting started told readers to install from npm without saying the package has never been published | Medium |
+| 25 | Migration demonstrated an upgrade check against a version (`0.2.0`) that does not exist | Low |
 
 Plus two test bugs where **the library was correct** and the assertion was not:
 the `scrollIntoView` interaction, and fractional-pixel spotlight tolerance.
@@ -661,10 +710,11 @@ Not started, and not blocking a usable library:
 - **Publishing to npm.** `@take-a-tour/core` returns 404 on the registry, but a
   scope needs an account to publish under. No release has been made and none
   will be without explicit authorisation.
-- **First deployment.** The Pages workflow is committed, but Pages has not
-  been enabled in repository settings and nothing has been pushed — the first
-  deploy is the repository owner's action (Settings → Pages → Source: GitHub
-  Actions, then push to `main` or run the workflow manually).
+- **First deployment.** The Pages workflow is committed and `main` has been
+  pushed, but Pages has not been enabled in repository settings, so no site has
+  been deployed yet. Enabling it is the repository owner's action
+  (Settings → Pages → Source: GitHub Actions), after which the workflow runs on
+  the next push to `main` or can be started manually.
 - **Visual regression screenshots.** The UI is verified structurally and
   behaviourally, but there is no pixel-diff baseline.
 - **Additional browsers.** Firefox and WebKit in the Playwright matrix.

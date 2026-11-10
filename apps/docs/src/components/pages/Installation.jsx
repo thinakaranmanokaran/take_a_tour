@@ -12,6 +12,15 @@ export default function Installation() {
 
       <CodeBlock lang="bash" code={`npm install @take-a-tour/core`} />
 
+      <Callout title="Not published yet" variant="warn">
+        <p>
+          <code>@take-a-tour/core</code> is not on the npm registry yet, so the command above
+          returns a 404 until the first release. Until then, work from the repository: it is an npm
+          workspace, the package lives in <code>packages/core</code>, and the docs app imports it
+          directly with no aliasing.
+        </p>
+      </Callout>
+
       <CodeBlock
         lang="js"
         code={`import { createTour } from "@take-a-tour/core";

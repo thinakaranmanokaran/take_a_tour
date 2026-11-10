@@ -1,6 +1,6 @@
 import CodeBlock from "../CodeBlock.jsx";
 import Callout from "../Callout.jsx";
-import { url } from "../../config/site.js";
+import { SITE, url } from "../../config/site.js";
 
 export default function GettingStarted() {
   return (
@@ -11,6 +11,14 @@ export default function GettingStarted() {
       <h2>1. Install</h2>
 
       <CodeBlock lang="bash" code={`npm install @take-a-tour/core`} />
+
+      <Callout title="Not on npm yet">
+        <p>
+          Version {SITE.version} is complete and tested, but it has not been published to the
+          registry. Until the first release, run it from the repository; the steps below apply
+          unchanged.
+        </p>
+      </Callout>
 
       <p>
         The package has zero runtime dependencies. Nothing else is required — not a CSS framework,

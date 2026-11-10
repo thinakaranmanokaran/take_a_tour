@@ -10,15 +10,9 @@ import { slugify } from "../lib/slugify.js";
  *
  * IDs are written into the built HTML by the search-index integration; in dev
  * they are generated here with the same shared slug so fragments resolve.
- *
- * `prerendered` gates only the first render: when the build step wrote the
- * list (its selector is in the DOM), the items are adopted immediately so
- * hydration finds exactly the server's markup; when it did not (dev, or a
- * page the build step leaves alone), the list fills in after mount.
  */
-function readHeadings({ selector, minCount, prerendered }) {
+function readHeadings({ selector, minCount }) {
   if (typeof document === "undefined") return [];
-  if (prerendered && !document.querySelector(prerendered)) return [];
   const content = document.getElementById("content");
   if (!content) return [];
 
@@ -36,13 +30,26 @@ function readHeadings({ selector, minCount, prerendered }) {
 }
 
 /**
+ * The first render may only use items the server actually rendered. When the
+ * build step wrote the list into the island's HTML (`prerendered` selector is
+ * present), adopt it so hydration finds exactly that DOM; otherwise start
+ * empty — the effect fills the list after mount. Reading headings that the
+ * server did not render would be a hydration mismatch (React error #418).
+ */
+function initialHeadings({ selector, minCount, prerendered }) {
+  if (typeof document === "undefined") return [];
+  if (!prerendered || !document.querySelector(prerendered)) return [];
+  return readHeadings({ selector, minCount });
+}
+
+/**
  * Collects the section headings of the current page's main content and tracks
  * which one the reader is on, with the same scroll-spy used by the table of
  * contents. The public site rail and both "On this page" variants share this
  * hook so their lists can never disagree with the rendered article.
  */
 export function useSectionHeadings({ selector = "h2, h3", minCount = 3, prerendered } = {}) {
-  const [items, setItems] = useState(() => readHeadings({ selector, minCount, prerendered }));
+  const [items, setItems] = useState(() => initialHeadings({ selector, minCount, prerendered }));
   const [activeId, setActiveId] = useState(null);
 
   useEffect(() => {
