@@ -1,0 +1,66 @@
+name: Deploy docs
+
+# Publishes the documentation site to GitHub Pages as a project site:
+#   https://thinakaranmanokaran.github.io/take_a_tour/
+#
+# One-time setup (repository settings, not code):
+#   Settings -> Pages -> Source: GitHub Actions.
+#
+# The base path and site origin live in `apps/docs/astro.config.mjs`
+# (`BASE_PATH`, `SITE_URL`), so the build output is already correct for this
+# repository without any CI-specific configuration.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/docs/**"
+      - "packages/core/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/deploy-docs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build documentation site
+        run: npm run docs:build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/docs/dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

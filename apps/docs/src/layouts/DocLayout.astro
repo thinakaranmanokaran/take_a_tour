@@ -1,126 +1,42 @@
 ---
 /**
- * Documentation layout: sidebar, header, content, footer navigation.
+ * Documentation layout: sidebar, breadcrumb trail, article, table of
+ * contents and previous/next pager. All navigation is derived from
+ * `nav.js`, so sidebar, pager and breadcrumbs can never disagree.
  */
-import { DOCS, GROUPS, docsInGroup, neighbours } from "../data/nav.ts";
-import "../styles/global.css";
-
-interface Props {
-  title: string;
-  description: string;
-}
+import BaseLayout from "./BaseLayout.astro";
+import Sidebar from "../components/Sidebar.jsx";
+import Breadcrumbs from "../components/Breadcrumbs.jsx";
+import Pager from "../components/Pager.jsx";
+import TOC from "../components/TOC.jsx";
+import { DOCS, neighbours } from "../data/nav.js";
+import { url } from "../config/site.js";
+import { breadcrumbJsonLd } from "../lib/seo.js";
 
 const { title, description } = Astro.props;
-const current = Astro.url.pathname.replace(/\/$/, "").replace(/^\/docs\/?/, "") || "";
-const { previous, next } = neighbours(current);
+
+const pathname = Astro.url.pathname;
+const current = DOCS.find((doc) => url(doc.href) === pathname);
+const { previous, next } = neighbours(current ? current.href : "");
+
+const breadcrumbs = [
+  { label: "Home", href: "/" },
+  { label: "Docs", href: "/docs/" },
+  ...(current && current.href !== "/docs/" ? [{ label: current.title }] : []),
+];
 ---
 
-<!doctype html>
-<html lang="en" data-theme="system">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} — Take a Tour</title>
-    <meta name="description" content={description} />
-    <meta name="generator" content={Astro.generator} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  </head>
-  <body>
-    <a class="skip-link" href="#content">Skip to content</a>
-
-    <header class="site-header">
-      <a class="site-header__brand" href="/">
-        <span class="brand-mark" aria-hidden="true">T</span>
-        <span>Take a Tour</span>
-      </a>
-
-      <div class="site-header__actions">
-        <div class="theme-switch" role="group" aria-label="Colour theme">
-          <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
-          <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
-          <button type="button" data-theme-choice="system" aria-pressed="true">System</button>
-        </div>
-        <a class="button button--ghost" href="https://github.com" rel="noreferrer noopener">GitHub</a>
-      </div>
-    </header>
-
-    <div class="layout">
-      <nav class="sidebar" aria-label="Documentation">
-        {
-          GROUPS.map((group) => (
-            <div class="sidebar__group">
-              <p class="sidebar__label">{group.label}</p>
-              <ul>
-                {docsInGroup(group.id).map((doc) => {
-                  const href = doc.slug === "" ? "/" : `/${doc.slug}`;
-                  const isCurrent = current === doc.slug;
-                  return (
-                    <li>
-                      <a href={href} aria-current={isCurrent ? "page" : undefined}>
-                        {doc.title}
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))
-        }
-      </nav>
-
-      <main class="content" id="content">
-        <slot />
-
-        <nav class="pager" aria-label="Page navigation">
-          {
-            previous ? (
-              <a class="pager__link pager__link--previous" href={previous.slug === "" ? "/" : `/${previous.slug}`}>
-                <span class="pager__direction">Previous</span>
-                <span class="pager__title">{previous.title}</span>
-              </a>
-            ) : (
-              <span />
-            )
-          }
-          {
-            next ? (
-              <a class="pager__link pager__link--next" href={next.slug === "" ? "/" : `/${next.slug}`}>
-                <span class="pager__direction">Next</span>
-                <span class="pager__title">{next.title}</span>
-              </a>
-            ) : (
-              <span />
-            )
-          }
-        </nav>
-
-        <footer class="content__footer">
-          <p>
-            {DOCS.length} sections · MIT licensed · zero runtime dependencies
-          </p>
-        </footer>
-      </main>
+<BaseLayout title={title} description={description} jsonLd={[breadcrumbJsonLd(breadcrumbs)]}>
+  <div class="layout">
+    <Sidebar current={pathname} client:idle />
+    <main class="content" id="content">
+      <Breadcrumbs items={breadcrumbs} />
+      <TOC client:idle variant="inline" />
+      <slot />
+      <Pager previous={previous} next={next} />
+    </main>
+    <div class="layout__toc">
+      <TOC client:idle />
     </div>
-
-    <script>
-      // Persisted theme preference, applied before paint to avoid a flash.
-      const stored = localStorage.getItem("tat-docs-theme") ?? "system";
-      document.documentElement.dataset.theme = stored;
-
-      for (const button of document.querySelectorAll<HTMLButtonElement>("[data-theme-choice]")) {
-        button.setAttribute(
-          "aria-pressed",
-          String(button.dataset.themeChoice === document.documentElement.dataset.theme)
-        );
-        button.addEventListener("click", () => {
-          const choice = button.dataset.themeChoice ?? "system";
-          document.documentElement.dataset.theme = choice;
-          localStorage.setItem("tat-docs-theme", choice);
-          for (const other of document.querySelectorAll<HTMLButtonElement>("[data-theme-choice]")) {
-            other.setAttribute("aria-pressed", String(other === button));
-          }
-        });
-      }
-    </script>
-  </body>
-</html>
+  </div>
+</BaseLayout>

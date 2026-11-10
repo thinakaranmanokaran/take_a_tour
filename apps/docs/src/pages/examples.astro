@@ -1,0 +1,28 @@
+---
+/**
+ * `/examples` — thin shell. All page content lives in the `Examples`
+ * component and the `ExampleShell` islands.
+ */
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Examples from "../components/pages/Examples.jsx";
+import ExampleShell from "../components/examples/ExampleShell.jsx";
+import { EXAMPLES } from "../components/examples/examples-data.js";
+import { breadcrumbJsonLd } from "../lib/seo.js";
+
+const description =
+  "Eight working Take a Tour examples — dashboards, forms, dark themes, missing targets and programmatic control — each running the real library with copyable code.";
+---
+
+<SiteLayout
+  title="Examples"
+  description={description}
+  jsonLd={[breadcrumbJsonLd([{ label: "Home", href: "/" }, { label: "Examples" }])]}
+>
+  <Examples>
+    {
+      EXAMPLES.map((example) => (
+        <ExampleShell client:visible exampleId={example.id} />
+      ))
+    }
+  </Examples>
+</SiteLayout>

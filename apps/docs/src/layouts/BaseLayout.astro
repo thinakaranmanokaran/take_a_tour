@@ -1,0 +1,52 @@
+---
+/**
+ * Document skeleton shared by every page: head metadata, the no-flash theme
+ * script, the header island, the page slot and the footer.
+ *
+ * This is one of the few `.astro` files by design — Astro renders framework
+ * components into the body, so `<head>` and the document shell must live
+ * here. Everything inside the body is a JSX component or a page shell
+ * composing them.
+ */
+import "../styles/global.css";
+/* Self-hosted substitute families (see the tokens in global.css): Bricolage
+   Grotesque for display, Geist for UI/body, JetBrains Mono for code. */
+import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/jetbrains-mono";
+import Meta from "../components/Meta.astro";
+import SiteHeader from "../components/SiteHeader.jsx";
+import SiteFooter from "../components/SiteFooter.jsx";
+import CopyButtons from "../components/CopyButtons.jsx";
+
+const { title, description, noindex = false, jsonLd = [] } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-theme="system">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <Meta title={title} description={description} noindex={noindex} jsonLd={jsonLd} />
+    <script is:inline>
+      // The stored theme is applied before first paint so it never flashes.
+      (() => {
+        try {
+          const stored = window.localStorage.getItem("tat-docs-theme");
+          if (stored === "light" || stored === "dark" || stored === "system") {
+            document.documentElement.dataset.theme = stored;
+          }
+        } catch {
+          /* storage unavailable — the default theme applies */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+    <SiteHeader pathname={Astro.url.pathname} client:load />
+    <slot />
+    <CopyButtons client:idle />
+    <SiteFooter />
+  </body>
+</html>

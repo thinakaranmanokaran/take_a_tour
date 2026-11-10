@@ -1,0 +1,131 @@
+import CodeBlock from "../CodeBlock.jsx";
+import Table from "../Table.jsx";
+import Callout from "../Callout.jsx";
+import { url } from "../../config/site.js";
+
+export default function Overview() {
+  return (
+    <>
+      <h1>Interactive tours, without the framework tax</h1>
+      <p className="lede">
+        Mark your elements with one HTML attribute, describe the tour as JSON, and call{" "}
+        <code>start()</code>. That is the whole integration.
+      </p>
+
+      <div className="grid grid--3">
+        <div className="card">
+          <h3>Zero dependencies</h3>
+          <p>No React, jQuery, Popper, icon package or CSS framework. Native DOM only.</p>
+        </div>
+        <div className="card">
+          <h3>Framework agnostic</h3>
+          <p>The same code works in plain HTML, React, Vue, Angular and Vite.</p>
+        </div>
+        <div className="card">
+          <h3>Accessible</h3>
+          <p>Keyboard navigation, focus management, live regions, reduced motion.</p>
+        </div>
+      </div>
+
+      <h2>A complete tour in twelve lines</h2>
+
+      <CodeBlock
+        lang="html"
+        title="index.html"
+        code={`<button data-tour-id="home.cta">Create project</button>
+<nav data-tour-id="home.sidebar">...</nav>`}
+      />
+
+      <CodeBlock
+        lang="js"
+        title="main.js"
+        code={`import { createTour } from "@take-a-tour/core";
+import "@take-a-tour/core/styles.css";
+
+const tour = createTour({
+  tourId: "home-onboarding",
+  steps: [
+    {
+      tourId: "home.cta",
+      title: "Create your first project",
+      content: "Start here to create a new project.",
+      placement: "bottom",
+    },
+    {
+      tourId: "home.sidebar",
+      title: "Navigate your workspace",
+      content: "Access all your modules from this sidebar.",
+      placement: "right",
+    },
+  ],
+});
+
+tour.start();`}
+      />
+
+      <h2>What it is built from</h2>
+
+      <p>
+        One engine, one design system, one configuration format. The UI does not own tour logic, and
+        the engine does not know which components it is driving — they meet at a narrow renderer
+        interface. That is what makes the library testable without a backend and replaceable without
+        a fork.
+      </p>
+
+      <Table
+        head={["Layer", "Responsibility"]}
+        rows={[
+          ["Public API", "<code>createTour</code>, lifecycle methods, event subscription"],
+          ["Configuration", "Validation, normalization, precedence, immutable snapshots"],
+          ["Registry &amp; lock", "Unique tour ids, one active tour per document"],
+          ["State machine", "Explicit legal transitions; illegal ones throw"],
+          ["Navigation", "Conditional steps, looping, goTo, per-step options"],
+          [
+            "Target resolution",
+            "Exact-value <code>data-tour-id</code> matching, ambiguity reporting",
+          ],
+          ["Positioning", "12 placements, fallback scoring, viewport clamping"],
+          ["Components", "Overlay, spotlight, tooltip, modal, progress, controls"],
+          ["Accessibility", "Keyboard, focus management, live-region announcements"],
+        ]}
+      />
+
+      <h2>What it deliberately does not do</h2>
+
+      <ul>
+        <li>It does not track analytics or make network requests. There are none in the source.</li>
+        <li>
+          It does not pierce shadow roots or iframes. Those limits are documented, not papered over.
+        </li>
+        <li>
+          It does not inject markup from configuration. Text goes in through{" "}
+          <code>textContent</code>, always.
+        </li>
+      </ul>
+
+      <Callout title="Two identifiers, one name">
+        <p>
+          A tour has a <code>tourId</code> that identifies the <strong>tour</strong>. A step also
+          has a <code>tourId</code> that identifies a <strong>DOM target</strong>. They are
+          different concepts that happen to share a field name, and the library keeps them strictly
+          separate. <a href={url("/docs/target-identifiers/")}>Read more</a>.
+        </p>
+      </Callout>
+
+      <h2>Where to go next</h2>
+
+      <ul>
+        <li>
+          <a href={url("/docs/getting-started/")}>Getting started</a> — install it and run
+          something.
+        </li>
+        <li>
+          <a href={url("/playground/")}>Playground</a> — edit JSON, watch the real library run.
+        </li>
+        <li>
+          <a href={url("/docs/api/")}>API reference</a> — every method and option.
+        </li>
+      </ul>
+    </>
+  );
+}

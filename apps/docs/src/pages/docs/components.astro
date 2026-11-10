@@ -1,0 +1,18 @@
+---
+/**
+ * `/docs/components` — thin shell. Static content lives in the `Components`
+ * component; the gallery is a hydrated island because it runs the real tour.
+ */
+import DocLayout from "../../layouts/DocLayout.astro";
+import Components from "../../components/pages/Components.jsx";
+import ComponentGallery from "../../components/ComponentGallery.jsx";
+---
+
+<DocLayout
+  title="Built-in components"
+  description="Every component the library renders, the classes they share and the design system behind them."
+>
+  <Components>
+    <Fragment slot="gallery"><ComponentGallery client:load /></Fragment>
+  </Components>
+</DocLayout>

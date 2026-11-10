@@ -1,0 +1,18 @@
+---
+/**
+ * `/404` — rendered as `404.html`, which both GitHub Pages and the local
+ * docs server serve for unknown paths.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import NotFound from "../components/pages/NotFound.jsx";
+---
+
+<BaseLayout
+  title="Page not found"
+  description="The page you asked for does not exist. Head back to the home page or open the documentation."
+  noindex={true}
+>
+  <main id="content">
+    <NotFound />
+  </main>
+</BaseLayout>

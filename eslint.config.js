@@ -1,6 +1,8 @@
 import js from "@eslint/js";
 import globals from "globals";
 import prettier from "eslint-config-prettier";
+import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
 
 /**
  * ESLint 9 flat configuration.
@@ -22,7 +24,6 @@ export default [
       "**/test-results/**",
       "referance/**",
       // ESLint has no parser for these without extra plugins.
-      "**/*.jsx",
       "**/*.tsx",
       "**/*.vue",
       "**/*.astro",
@@ -133,6 +134,52 @@ export default [
       "no-console": "off",
       // Tests deliberately poke at global APIs and hold long-lived state.
       "no-unused-vars": ["error", { argsIgnorePattern: "^_", caughtErrors: "none" }],
+    },
+  },
+
+  // --- Website React components (apps/docs) ------------------------------
+  // JSX everywhere in the docs app: page bodies and interactive islands are
+  // `.jsx` components. `react/jsx-uses-vars` is required because component
+  // imports are referenced in JSX, which core `no-unused-vars` cannot see.
+  {
+    files: ["apps/docs/**/*.jsx"],
+    plugins: {
+      react,
+      "react-hooks": reactHooks,
+    },
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: "module",
+      globals: {
+        ...globals.browser,
+      },
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      "react/jsx-uses-vars": "error",
+      "no-var": "error",
+      "prefer-const": "error",
+      eqeqeq: ["error", "always", { null: "ignore" }],
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_", caughtErrors: "none" }],
+
+      // These two React Compiler-era rules fire on the patterns that make this
+      // site work, and the alternatives they push toward would break behaviour:
+      //
+      // - `set-state-in-effect`: the theme must be read from localStorage and
+      //   matchMedia *after* mount (reading them during render would cause a
+      //   hydration mismatch), and the TOC must derive its list from the
+      //   rendered DOM — both are one-time syncs with an external system,
+      //   which is what effects are for.
+      // - `immutability`: applying the theme writes to
+      //   `document.documentElement.dataset.theme`, and the playground exposes
+      //   `window.playground` for tests and curious users. Both are deliberate,
+      //   documented interfaces to the browser, not component state leaks.
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/immutability": "off",
     },
   },
 

@@ -1,103 +1,19 @@
 ---
-import DocLayout from "../layouts/DocLayout.astro";
-import Table from "../components/Table.astro";
-import Callout from "../components/Callout.astro";
+/**
+ * `/changelog` — thin shell around the `Changelog` page component.
+ */
+import SiteLayout from "../layouts/SiteLayout.astro";
+import Changelog from "../components/pages/Changelog.jsx";
+import { breadcrumbJsonLd } from "../lib/seo.js";
+
+const description =
+  "Release notes for Take a Tour: what shipped in 0.1.0, the security posture, and the known limitations.";
 ---
 
-<DocLayout title="Changelog" description="What changed in each release.">
-  <h1>Changelog</h1>
-  <p class="lede">
-    All notable changes. The format follows
-    <a href="https://keepachangelog.com">Keep a Changelog</a>; versions follow
-    <a href="https://semver.org">SemVer</a>.
-  </p>
-
-  <h2>0.1.0</h2>
-
-  <p>First complete, tested release.</p>
-
-  <h3>Added</h3>
-
-  <ul>
-    <li>
-      <strong>Core engine</strong> — configuration validation, immutable normalization,
-      precedence chain, tour registry, state machine, navigation.
-    </li>
-    <li>
-      <strong>Exact-value target resolution</strong> — <code>data-tour-id</code> matched as data,
-      never as a CSS selector. Dotted and special-character identifiers resolve correctly;
-      duplicates raise an actionable error instead of being resolved silently.
-    </li>
-    <li>
-      <strong>Positioning engine</strong> — thirteen placements, space scoring with fallback
-      ordering, viewport clamping, arrow tracking, rAF batching,
-      <code>ResizeObserver</code>, nested scroll-container tracking.
-    </li>
-    <li>
-      <strong>Design system</strong> — tokens, light/dark/system themes, one stylesheet entry at
-      <code>@take-a-tour/core/styles.css</code>. All rules scoped under <code>.tat-root</code>, all
-      variables prefixed <code>--tat-</code>.
-    </li>
-    <li>
-      <strong>Components</strong> — overlay, spotlight, tooltip, centred modal, progress bar and
-      counter, Previous, Next, Done, Skip, Close, custom action area, live region.
-    </li>
-    <li>
-      <strong>Accessibility</strong> — keyboard navigation, focus management with restoration,
-      focus trapping for modals only, polite live-region announcements, reduced-motion support,
-      target-interaction mode.
-    </li>
-    <li>
-      <strong>Persistence</strong> — off by default; memory, <code>localStorage</code> and custom
-      adapters, all hardened against blocked or unavailable storage.
-    </li>
-    <li>
-      <strong>Missing-target strategies</strong> — <code>error</code>, <code>skip</code>,
-      <code>wait</code>, <code>fallback</code>, configurable per tour and per step.
-    </li>
-    <li>
-      <strong>Conditional steps</strong> — <code>when</code> predicates, synchronous or
-      asynchronous.
-    </li>
-    <li>
-      <strong>Concurrency policies</strong> — <code>pause-previous</code> (default),
-      <code>stop-previous</code>, <code>reject</code>.
-    </li>
-    <li>
-      <strong>Typed API</strong> — hand-written <code>types/index.d.ts</code>, verified by a
-      TypeScript consumer fixture compiled with <code>tsc --noEmit</code>.
-    </li>
-  </ul>
-
-  <h3>Security</h3>
-
-  <ul>
-    <li>
-      No runtime dependencies, enforced by an audit that fails the build.
-    </li>
-    <li>
-      No <code>innerHTML</code> outside one explicitly named, opt-in module. No <code>eval</code>,
-      no <code>Function</code>, no network access.
-    </li>
-    <li>
-      All configuration text rendered through <code>textContent</code>.
-    </li>
-  </ul>
-
-  <h3>Known limitations</h3>
-
-  <ul>
-    <li>Shadow DOM targets require <code>target.element</code>.</li>
-    <li>Cross-origin iframes are not supported.</li>
-    <li>Spotlight movement animates layout properties rather than being GPU-composited.</li>
-    <li>Conditional steps are evaluated once per run, not per navigation.</li>
-  </ul>
-
-  <Callout title="Not published">
-    <p>
-      This build has not been published to npm. The package name <code>@take-a-tour/core</code> was
-      unclaimed when checked, but a scope still needs an account to publish under, and no release
-      has been made.
-    </p>
-  </Callout>
-</DocLayout>
+<SiteLayout
+  title="Changelog"
+  description={description}
+  jsonLd={[breadcrumbJsonLd([{ label: "Home", href: "/" }, { label: "Changelog" }])]}
+>
+  <Changelog />
+</SiteLayout>

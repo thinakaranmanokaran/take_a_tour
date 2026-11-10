@@ -18,7 +18,7 @@ Status: `[x]` done and verified · `[~]` partial · `[ ]` not started
 | Browser — layout | `npm run test:browser` | **15 passed** |
 | Browser — accessibility | `npm run test:browser` | **13 passed** |
 | Browser — cleanup | `npm run test:browser` | **36 total** |
-| Browser — docs site | `npm run test:browser:docs` | **11 passed** |
+| Browser — docs site | `npm run test:browser:docs` | **30 passed** (playground, site, SEO, link crawl) |
 | Lint | `npm run lint` | clean |
 | Format | `npm run format:check` | clean |
 | Build | `npm run build` | CJS bundle written |
@@ -26,7 +26,8 @@ Status: `[x]` done and verified · `[~]` partial · `[ ]` not started
 | Type declarations | `npm run typecheck:types` | `tsc --noEmit` clean |
 | Package contents | `npm run pack:check` | 57 files, correct |
 | Clean consumer install | `npm run test:consumer` | ESM + CJS + CSS + types all pass |
-| Documentation build | `npm run docs:build` | 22 pages built |
+| Documentation build | `npm run docs:build` | 27 pages built |
+| Site performance measurement | `npm run perf:measure` (apps/docs) | recorded in Phase 8 |
 | Dependency vulnerabilities | `npm audit` | 0 |
 
 `npm run verify` runs lint → format → test → build → dep audit → typecheck →
@@ -257,6 +258,10 @@ identical results after a flake fix:
 4. Six Astro pages failed to prerender because inline `<code>{ defaults }</code>`
    was parsed as a JavaScript expression. Escaped with HTML entities.
 
+> Superseded by Phase 8: the site was restructured — thin `.astro` shells,
+> JSX page components, hydrated islands, GitHub Pages base path — and now
+> builds 27 routes with a 30-test browser suite.
+
 ---
 
 ## Phase 7 — Release readiness · complete
@@ -301,10 +306,293 @@ The `"type": "module"` + `.cjs` interaction the review flagged is handled by the
 
 ---
 
+## Phase 8 — Official website · complete
+
+The official site for the library (`apps/docs`), per `reference/WEBSITE.md`:
+27 routes — a marketing home page, 20 documentation topics plus the docs
+index, `/examples/`, `/playground/`, `/changelog/`, `/about/` and a designed
+404 — built as a static Astro site with hydrated React islands, published as a
+GitHub Pages project site under `/take_a_tour/`.
+
+### What was built
+
+- **Pure JavaScript + JSX.** Route files are thin `.astro` shells; every UI
+  block is a `.jsx` component used from those shells. No `.ts`/`.tsx` source
+  exists in the app; `tsconfig.json` only lets tooling parse JSX.
+- **The real library powers every interactive piece** — hero demo, feature
+  showcase, example panels, playground, component gallery, theme customiser —
+  through one shared hook (`src/hooks/useTour.js`) that dynamic-imports the
+  library on first interaction, destroys any previous tour before starting,
+  and destroys on unmount.
+- **One base-path owner.** `url()` in `src/config/site.js` is the only way an
+  internal href is built; `trailingSlash: "always"` and directory builds keep
+  every URL on the canonical (non-redirect) form.
+- **Build extras** (`astro:build:done`): heading ids via the shared slugifier,
+  `search-index.json` (252 sections), `sitemap.xml` (26 canonical URLs, the
+  404 excluded), `robots.txt`, `.nojekyll`.
+- **Search (Ctrl+K)** over the built index, loaded only when the dialog opens.
+- **SEO**: unique title/description per page (short descriptions rewritten),
+  base-aware canonicals, OG/Twitter with absolute URLs, `WebSite` +
+  `SoftwareApplication` + `BreadcrumbList` JSON-LD, `noindex` on the 404, and
+  a rasterised `og.png` (1200×630) + `apple-touch-icon.png` (180×180)
+  generated with the installed Playwright Chromium (`npm run og:generate`).
+- **Deployment prepared, not executed**: `.github/workflows/deploy-docs.yml`
+  (Pages artifact + deploy job, path-filtered pushes to `main` plus manual
+  dispatch); `npm run test:browser:docs` runs in CI.
+
+### Executed
+
+| Check | Result |
+| ----- | ------ |
+| `npm run docs:build` | 27 pages; 26 sitemap URLs; 252 sections indexed |
+| `npm run test:browser:docs` | **30 passed** (4 spec files, table below) |
+| `npm run verify` | end to end, including the docs build |
+| `npm run lint` / `npm run format:check` | clean |
+| Text parity vs pre-rewrite build | only the deliberate copy fixes differ |
+| `npm run perf:measure` | recorded under "Measured performance" |
+| Lighthouse 13.5.0 (desktop home) | 95–98 performance · 100 a11y · 100 best practices · 100 SEO |
+| `npm audit` | 0 vulnerabilities |
+
+Docs browser suite (Pages-like static server: base prefix, 301 on slashless
+directory URLs, the built 404 for unknown paths):
+
+| File | Tests | Covers |
+| ---- | ----- | ------ |
+| `docs-playground.spec.js` | 12 | The original 11 DOM-contract tests, preserved; playground tours, real spotlight geometry, JSON edits, both error paths, gallery + customiser tours, zero residue after repeated start/destroy, sidebar links |
+| `docs-site.spec.js` | 10 | Hero tour with real geometry, example panel tour, Ctrl+K search opening an anchor, theme persistence, heading ids + TOC, designed 404 with 404 status, skip link, mobile menu (Escape + navigation), axe on key pages in light and dark, reduced-motion |
+| `docs-seo.spec.js` | 6 | Sitemap as absolute base-aware URLs, robots pointing at it, unique title/description/canonical with no stray `noindex`, the 404 `noindex`, JSON-LD parses, social card size |
+| `docs-links.spec.js` | 2 | The build produced pages; every internal link **and fragment** resolves under `/take_a_tour/` |
+
+### Measured performance
+
+Method: `npm run perf:measure` (`apps/docs/scripts/measure-perf.mjs`) loads
+the built site through the Pages-like server in headless Chromium (desktop
+viewport, cold cache, software rendering — the machine has no GPU), reads
+requests, transfer bytes, LCP and CLS from the browser, and clicks the theme
+switch once for event timing.
+
+| Route | Requests | JS | CSS | Total | LCP | CLS |
+| ----- | -------- | -- | --- | ----- | --- | --- |
+| home | 13 at load → 14 after starting the hero tour | 291.1 kB | 46.0 kB | 319.1 → 373.7 kB | 860 ms | 0.000 |
+| docs (getting started) | 9 | 226.8 kB | 32.7 kB | 280.7 kB | 404 ms | 0.000 |
+| examples | 12 | 246.4 kB | 46.0 kB | 349.4 kB | 368 ms | 0.000 |
+| playground | 11 | 237.9 kB | 46.0 kB | 305.1 kB | 408 ms | 0.000 |
+
+The laziness contract held: on the home page the core library chunk appears
+**only after** the visitor presses "Run the real tour" — one script request
+(`src.*.js`, ~54 kB), absent from every earlier request. `client:visible`
+islands (showcase, example panels) hydrate on scroll by design; the run
+counts 3/4 and 3/10 islands hydrated at load, which is the intended
+behaviour, not a defect.
+
+Lighthouse 13.5.0, desktop preset, home: **95–98 performance**, **100
+accessibility**, **100 best practices**, **100 SEO**; FCP 456–558 ms,
+LCP 627–792 ms, TBT 111–166 ms, CLS ≈ 0.
+
+Lighthouse's mobile emulation on this machine was unstable: three runs of the
+same build scored 46, 59 and 92 (TBT 4577, 2838 and 59 ms). A controlled
+Playwright pass with CDP 4× CPU throttling in the same Chromium — same
+viewport, same emulation — produced worst long tasks of 183–559 ms, so the
+outlying numbers are an artefact of this environment (software rendering,
+emulation inside emulation), not reproducible behaviour of the site. Recorded
+for transparency; nothing was tuned to them.
+
+One audit result was real and fixed: the sample-app mock injected an `<h4>`
+into the page outline, failing Lighthouse's heading-order audit (the a11y
+score was 98 on desktop for that reason). It is now a `<p>` with identical
+styling — the category scores 100.
+
+### Deployment preparation
+
+- `.github/workflows/deploy-docs.yml`: install → `npm run docs:build` →
+  `actions/upload-pages-artifact` (`apps/docs/dist`) →
+  `actions/deploy-pages`; `permissions: pages: write, id-token: write`;
+  `environment: github-pages`; concurrency group; path-filtered pushes to
+  `main` and `workflow_dispatch`.
+- `.github/workflows/ci.yml`: the verify job runs `npm run verify`; the
+  browser-tests job runs `npm run test:browser:docs`.
+- `apps/docs/README.md` documents local dev
+  (`http://localhost:4321/take_a_tour/` — preview verified: base path 200,
+  root 404), `SITE_URL`/`BASE_PATH`/`PUBLIC_REPO_URL`, the `url()` rule, OG
+  regeneration, the project-site `robots.txt` caveat (submit the sitemap
+  through Search Console), the JS/JSX-only policy and the one-time Pages
+  enable step (Settings → Pages → Source: GitHub Actions).
+- **Nothing was pushed or deployed.** Enabling Pages and the first deploy are
+  the repository owner's actions.
+
+---
+
+## Phase 9 — Design-system restyle · complete
+
+The site was restyled to a new design system: cream canvas, one hot orange,
+three type families, pill-shaped interactive elements, dark-only code wells.
+No route, DOM contract or behaviour changed — all 27 routes and the 30-test
+docs browser suite kept working throughout, and `packages/core` was not
+touched.
+
+### What changed
+
+- **Type.** Three self-hosted variable families, installed as
+  `@fontsource-variable/*@5.3.0` and imported in `BaseLayout.astro`: Bricolage
+  Grotesque (display), Geist (body/UI), JetBrains Mono (code). The browser
+  loads exactly three `woff2` files — one latin subset per family, all done by
+  ~390 ms against the local server. No CDN, no runtime font fetch.
+- **Palette.** `--brand` (`#ea2804`) is art only — hero band, 404 digits, logo
+  tile; every interactive element uses `--primary` (`#d42300` light,
+  `#ff6a3d` dark), deepened so controls and text clear WCAG AA. Measured:
+  4.86:1 on cream, 5.20:1 with white text, 6.11:1 for the dark-theme orange on
+  the ink surface. The hero band base is `#c01f00` with band text at 5.95:1 and
+  a decorative mesh kept behind the copy.
+- **Rhythm and wells.** Home alternates cream → orange hero → cream → a new
+  dark "how it works" band → cream → black footer. Code wells are dark in both
+  themes with a single light-on-dark token palette.
+- **Library harmonisation.** The demos run the real library, whose stylesheet
+  pins its `--tat-*` tokens per tour root. The site maps its palette onto them
+  with a specificity-safe block
+  (`:root .tat-root[data-tat-theme="light"|"dark"]`), and the live customiser
+  now writes the site's `--tat-site-primary` / `--tat-site-contrast` hooks that
+  the same block consumes — so the accent control genuinely restyles a running
+  tour (verified: site orange → #00b894 → reset).
+- **Assets.** `og.png` (1200×630) and `apple-touch-icon.png` (180×180)
+  regenerated by `npm run og:generate` with the real font files embedded;
+  `favicon.svg` rewritten as an orange "T" tile.
+
+### Bugs found and fixed during the restyle
+
+Bugs 16–20 in the table below: invisible dark-on-dark code in light mode,
+shadowed tour-token overrides (demos stuck indigo), the customiser accent
+control that had never worked, an invisible dark-mode search selection, and
+the 404 digits losing their brand colour to specificity.
+
+### Executed
+
+| Check | Result |
+| ----- | ------ |
+| `npm run docs:build` | 27 pages |
+| `npm run test:browser:docs` | **30 passed** |
+| axe (wcag2a + wcag2aa), 4 page shapes × 2 themes | **0 serious/critical violations** |
+| Contrast pairs (computed) | interactive orange ≥ 4.86:1 on every surface it is used on |
+| `npm run perf:measure` | recorded below — CSS 57.1 kB, home LCP 824 ms, CLS 0.0203 |
+| Visual review | light/dark screenshots of every page shape, plus hero/playground/customiser tours running, Ctrl+K search and the mobile menu |
+
+The axe test in `docs-site.spec.js` now sets a 120 s per-test timeout: eight
+full scans (≈25 s of pure audit on this machine) plus their navigations do not
+fit the default 30 s. The assertions are unchanged.
+
+### Measured performance (after the restyle)
+
+| Route | Requests | JS | CSS | Total | LCP | CLS |
+| ----- | -------- | -- | --- | ----- | --- | --- |
+| home | 17 | 291.1 kB | 57.1 kB | 493.5 kB | 824 ms | 0.0203 |
+| docs (getting started) | 12 | 226.8 kB | 43.9 kB | 400.4 kB | 432 ms | 0.0035 |
+| examples | 15 | 246.4 kB | 57.1 kB | 469.1 kB | 388 ms | 0.0144 |
+| playground | 14 | 237.9 kB | 57.1 kB | 424.8 kB | 416 ms | 0.0017 |
+
+CSS grew ≈11 kB over Phase 8 (the restyle plus the three font faces' CSS);
+`other` bytes include the three latin `woff2` subsets (~145 kB on home). The
+laziness contract still holds — the library chunk appears only after starting
+the hero tour, and `client:visible` islands still hydrate on scroll (3/4
+islands at load on home, 3/10 on examples — the same counts as Phase 8).
+Machine variance, recorded for transparency: the first home LCP reading right
+after a heavy test run was 2.3 s; the next two runs on the same build read
+912 ms and 824 ms. Nothing was tuned to the outliers.
+
+---
+
+## Phase 10 — Navigation · complete
+
+Public pages now carry a left site rail — the pages plus the current page's own
+sections — and docs gained section navigation: a foldable right rail at 1280px
+and up, and a foldable inline disclosure below that. All 27 routes, the DOM
+contract and both browser suites kept passing throughout, and `packages/core`
+was not touched.
+
+### What changed
+
+- **`SiteSidebar.jsx`** — a "Site" group listing Home, Docs, Playground,
+  Examples, About and Changelog (`PUBLIC_PAGES` in `src/data/nav.js`). The
+  current page's `h2` sections nest under its entry when there are two or more,
+  with a scroll-spy highlight; the changelog (a single top-level heading) lists
+  none, and sections only ever render under the page they belong to — the list
+  never claims a link goes somewhere it doesn't.
+- **`SiteLayout.astro`** — replaces `HomeLayout.astro`: BaseLayout plus a
+  two-column `.layout--site` (rail + `#content`), used by the five public page
+  shells. Home's full-bleed bands intentionally stay full-width: the rail sits
+  outside them, flush left with a hairline border, not indenting the design.
+- **Docs rails** — the left rail gained the same "Documentation" head with a
+  fold control and is now `client:idle`; the right rail gained a fold control on
+  its "On this page" label. Below 1280px the right rail is replaced by a
+  collapsed inline `toc-disclosure` above the article heading, so 901–1279px
+  keeps two real columns instead of cramming a three-column layout.
+- **Fold model (`useRailCollapse.js`)** — one class (`is-nav-collapsed`) on the
+  closest `.layout` drives everything: above 901px the rail's column collapses
+  to zero and a fixed circular re-open control appears at the left edge, with
+  focus handoff in both directions; at 900px and below — where the rails stack
+  above the content — the same control folds the list. Open by default, no
+  persistence, no layout shift on first paint.
+- **Shared heading logic (`useSectionHeadings.js`)** — heading ids, slugs and
+  scroll-spy moved out of the TOC so the site rail and the TOC share one
+  implementation; both use the slugified ids the build step already injects.
+- **The section list is prerendered.** The `astro:build:done` step that writes
+  heading ids now also writes the current page's `h2` list into the site rail's
+  static HTML (same rule as the island: two or more `h2`s), and the island
+  adopts that list on its first render — hydration changes nothing, and the
+  sections exist for a no-JS reader. Measured effect: the rail's links no
+  longer jump ~270px into place after load (examples CLS 0.0758 → 0.0191).
+- **DOM contract preserved** — the inline disclosure deliberately avoids the
+  `.toc` class (the browser tests locate `.toc a` uniquely), the rail TOC still
+  ships its list in the static HTML, and every navigation link is a plain SSR
+  anchor; folding is CSS plus one class, so nothing depends on hydration.
+
+### Bugs found during the visual review
+
+Bug 21 in the table below: the fixed re-open control, rendered inside the
+sticky, `visibility: hidden` rail, was painted beneath page content in
+Chromium — `z-index: 5000` would not lift it. Rendering it as a sibling of the
+nav (outside the sticky subtree) fixes it. A second, smaller leak: the
+collapsed three-column rule meant for docs also matched `.layout--site`, giving
+the collapsed site rail a phantom third grid track; scoping that rule with
+`:not(.layout--site)` fixed it.
+
+A third was caught by the performance check rather than the eye: with the
+section list rendered only after hydration, the rail's other links shifted down
+by the list's height on every public page (examples CLS 0.0758, home 0.0362).
+Prerendering the list into the built HTML — and hydrating the identical DOM —
+removed the shift (examples 0.0191, home 0.0305).
+
+### Executed
+
+| Check | Result |
+| ----- | ------ |
+| `npm run docs:build` | 27 pages |
+| `npm run test:browser:docs` | **30 passed** — including the axe scans in both themes and the link crawl, which now also verifies every prerendered rail fragment |
+| `npm run test:browser` | **36 passed** |
+| Hydration check | SSR section list and hydrated DOM identical on all five public pages, console clean |
+| `npm run lint` / `npm run format:check` | clean |
+| Visual review | 17 screenshots: home (light, dark, scrolled, collapsed), docs at 1440 / 1200 / 901 / 820 / 390, examples, about, changelog, playground, mobile folds and re-open states |
+| `npm run perf:measure` | recorded below |
+
+### Measured performance (after navigation)
+
+Requests grow by four per route (the site rail's island, the docs rail now
+being an island, and their hydration chunks) — JS +6–7 kB, CSS +3 kB. The home
+route's first reading after the heavy test run was LCP 1668 ms; the next run
+read 936 ms, the same right-after-the-suite variance Phase 9 recorded. The
+library chunk is still fetched only after starting the hero tour.
+
+| Route | Requests | JS | CSS | Total | LCP | CLS |
+| ----- | -------- | -- | --- | ----- | --- | --- |
+| home | 21 | 297.9 kB | 60.0 kB | 505.5 kB | 936 ms | 0.0305 |
+| docs (getting started) | 16 | 233.5 kB | 46.8 kB | 411.7 kB | 524 ms | 0.0029 |
+| examples | 19 | 253.2 kB | 60.0 kB | 481.2 kB | 556 ms | 0.0191 |
+| playground | 18 | 244.7 kB | 60.0 kB | 436.4 kB | 500 ms | 0.0012 |
+
+---
+
 ## Bugs found across all phases
 
-Nine implementation bugs, each caught by a test that was written first and run
-before the fix:
+Twenty-two implementation bugs — nine in the library and thirteen in the site —
+each caught by a check that was run before the fix:
 
 | # | Bug | Severity |
 | - | --- | -------- |
@@ -317,6 +605,19 @@ before the fix:
 | 7 | Rapid `next()` could paint a superseded step | Medium |
 | 8 | Escape key fired after `destroy()` | Medium |
 | 9 | Live region created even with `announce: false` | Low |
+| 10 | 18 in-prose links missed the `/take_a_tour/` base path (one also pointed at an old route) — every one would have 404'd on the real host | High |
+| 11 | The search dialog cancelled its own index fetch; the first Ctrl+K never resolved | Medium |
+| 12 | The heading-id build step truncated the built HTML before `<main>` | High |
+| 13 | `--text-subtle` in both themes and white-on-primary in dark failed axe contrast | Medium |
+| 14 | Scrollable code blocks and tables were not keyboard-focusable | Low |
+| 15 | The sample-app mock used an `<h4>`, breaking heading order (Lighthouse audit) | Low |
+| 16 | Light-mode code blocks inherited the page ink colour — dark-on-dark code was invisible | High |
+| 17 | Tour accent overrides were declared at `:root`, where the library's per-root tokens shadow them — every demo tour stayed indigo | Medium |
+| 18 | The customiser's accent control had never restyled a running tour (the same shadowing); it now does | Medium |
+| 19 | Search-result selection equalled the surface colour in dark — the active row was invisible | Low |
+| 20 | The 404 digits lost their brand colour to a higher-specificity paragraph rule | Low |
+| 21 | The rail's re-open control, `position: fixed` inside the sticky rail, was painted beneath page content in Chromium — immune to `z-index` | Medium |
+| 22 | The collapsed three-column rule meant for docs also matched the site layout, leaving a phantom grid track (an empty strip beside the content) | Low |
 
 Plus two test bugs where **the library was correct** and the assertion was not:
 the `scrollIntoView` interaction, and fractional-pixel spotlight tolerance.
@@ -346,6 +647,10 @@ Stated honestly. None of these are covered by tests.
 8. **The repository path contains a space** (`Take a Tour`). Everything works,
    but some toolchains are known to be sensitive to spaces in absolute paths.
    If a third-party tool misbehaves, this is the first thing to change.
+9. **The site ships a React runtime on every page.** The confirmed JSX
+   requirement means even reading-only documentation loads ~200 kB of
+   JavaScript for the shared islands. Measured in Phase 8 and accepted; on the
+   home page the library itself is still fetched only on first interaction.
 
 ---
 
@@ -356,6 +661,10 @@ Not started, and not blocking a usable library:
 - **Publishing to npm.** `@take-a-tour/core` returns 404 on the registry, but a
   scope needs an account to publish under. No release has been made and none
   will be without explicit authorisation.
+- **First deployment.** The Pages workflow is committed, but Pages has not
+  been enabled in repository settings and nothing has been pushed — the first
+  deploy is the repository owner's action (Settings → Pages → Source: GitHub
+  Actions, then push to `main` or run the workflow manually).
 - **Visual regression screenshots.** The UI is verified structurally and
   behaviourally, but there is no pixel-diff baseline.
 - **Additional browsers.** Firefox and WebKit in the Playwright matrix.

@@ -1,66 +1,23 @@
 ---
-import DocLayout from "../layouts/DocLayout.astro";
-import CodeBlock from "../components/CodeBlock.astro";
-import Callout from "../components/Callout.astro";
-import Playground from "../components/Playground.astro";
+/**
+ * `/playground` — thin shell. The page body is the `PlaygroundPage`
+ * component; the editor itself is the `Playground` island.
+ */
+import SiteLayout from "../layouts/SiteLayout.astro";
+import PlaygroundPage from "../components/pages/PlaygroundPage.jsx";
+import Playground from "../components/Playground.jsx";
+import { breadcrumbJsonLd } from "../lib/seo.js";
+
+const description =
+  "Edit a tour's JSON configuration and watch the real @take-a-tour/core library render it — targeting, spotlight geometry and theming included.";
 ---
 
-<DocLayout
+<SiteLayout
   title="Playground"
-  description="Edit a tour's JSON configuration and watch the real @take-a-tour/core library render it."
+  description={description}
+  jsonLd={[breadcrumbJsonLd([{ label: "Home", href: "/" }, { label: "Playground" }])]}
 >
-  <h1>Playground</h1>
-  <p class="lede">
-    This runs the actual <code>@take-a-tour/core</code> package — the same code published to npm,
-    imported by name. There is no mock and no parallel implementation.
-  </p>
-
-  <Playground />
-
-  <h2>What to try</h2>
-
-  <ul>
-    <li>
-      Change <code>"placement"</code> to <code>"left"</code>, <code>"right"</code> or
-      <code>"top"</code> and restart.
-    </li>
-    <li>Switch <code>"theme"</code> between <code>light</code>, <code>dark</code> and <code>system</code>.</li>
-    <li>
-      Remove a step's <code>tourId</code> and press Start to read the validation error the library
-      actually throws.
-    </li>
-    <li>
-      Add a second element with the same <code>data-tour-id</code> in the console to see the
-      ambiguity report.
-    </li>
-    <li>Open the <strong>CSS variables</strong> tab and uncomment <code>--tat-tooltip-width</code>.</li>
-  </ul>
-
-  <h2>Starting code</h2>
-
-  <CodeBlock
-    lang="json"
-    code={`{
-  "tourId": "playground",
-  "theme": "system",
-  "placement": "bottom",
-  "showProgress": true,
-  "steps": [
-    {
-      "tourId": "play.nav",
-      "title": "Start here",
-      "content": "This panel is a live preview. Press Next to move on.",
-      "placement": "right"
-    }
-  ]
-}`}
-  />
-
-  <Callout title="The preview surface is real DOM">
-    <p>
-      The three elements in the preview carry real <code>data-tour-id</code> attributes, so
-      target resolution, spotlight geometry and repositioning all behave exactly as they would in
-      your application.
-    </p>
-  </Callout>
-</DocLayout>
+  <PlaygroundPage>
+    <Playground client:load />
+  </PlaygroundPage>
+</SiteLayout>

@@ -1,0 +1,19 @@
+---
+/**
+ * `/about` — thin shell around the `About` page component.
+ */
+import SiteLayout from "../layouts/SiteLayout.astro";
+import About from "../components/pages/About.jsx";
+import { breadcrumbJsonLd } from "../lib/seo.js";
+
+const description =
+  "Take a Tour's purpose, technical philosophy, supported use cases and contribution approach — a zero-dependency JavaScript product-tour library.";
+---
+
+<SiteLayout
+  title="About"
+  description={description}
+  jsonLd={[breadcrumbJsonLd([{ label: "Home", href: "/" }, { label: "About" }])]}
+>
+  <About />
+</SiteLayout>

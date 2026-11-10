@@ -1,0 +1,15 @@
+---
+/**
+ * `/docs/themes` — thin shell. Static content lives in the `Themes` component;
+ * the customiser is a hydrated island because it writes live CSS variables.
+ */
+import DocLayout from "../../layouts/DocLayout.astro";
+import Themes from "../../components/pages/Themes.jsx";
+import ThemeCustomiser from "../../components/ThemeCustomiser.jsx";
+---
+
+<DocLayout title="Themes and styling" description="Light, dark and system themes, every design token, and how to override them without forking.">
+  <Themes>
+    <Fragment slot="customiser"><ThemeCustomiser client:load /></Fragment>
+  </Themes>
+</DocLayout>

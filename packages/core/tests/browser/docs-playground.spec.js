@@ -10,9 +10,26 @@ import { expect, test } from "@playwright/test";
  */
 
 async function gotoPlayground(page) {
-  await page.goto("/playground");
-  await page.waitForFunction(() => window.playground !== undefined);
+  await page.goto("/take_a_tour/playground/");
+  // `id="playground"` also makes `window.playground` resolve to that element
+  // through named access, so wait for the island's actual API object.
+  await page.waitForFunction(() => typeof window.playground?.getState === "function");
   await page.waitForSelector("#preview .preview__nav");
+}
+
+/**
+ * Waits until the island containing `selector` has hydrated. Astro removes the
+ * `ssr` attribute from `<astro-island>` once the client runtime has taken over,
+ * which is the only reliable signal — Playwright's actionability checks do not
+ * know about hydration.
+ */
+async function waitForIsland(page, selector) {
+  await page.waitForFunction((target) => {
+    const island = [...document.querySelectorAll("astro-island")].find((el) =>
+      el.querySelector(target)
+    );
+    return Boolean(island) && !island.hasAttribute("ssr");
+  }, selector);
 }
 
 test("the playground starts a real tour", async ({ page }) => {
@@ -178,7 +195,8 @@ test("destroying removes the overlay and re-enables Start", async ({ page }) => 
 });
 
 test("the component gallery starts a real tour", async ({ page }) => {
-  await page.goto("/components");
+  await page.goto("/take_a_tour/docs/components/");
+  await waitForIsland(page, "#gallery-start");
   await page.locator("#gallery-start").click();
 
   await expect(page.locator(".tat-root")).toHaveCount(1);
@@ -199,7 +217,8 @@ test("the component gallery starts a real tour", async ({ page }) => {
 });
 
 test("the theme customiser restyles a live tour", async ({ page }) => {
-  await page.goto("/themes");
+  await page.goto("/take_a_tour/docs/themes/");
+  await waitForIsland(page, "#customiser-start");
   await page.locator("#customiser-start").click();
   await expect(page.locator(".tat-root")).toHaveCount(1);
 
@@ -211,8 +230,25 @@ test("the theme customiser restyles a live tour", async ({ page }) => {
   expect(after.width).toBeGreaterThan(before.width);
 });
 
+test("repeated start and destroy cycles leave nothing behind", async ({ page }) => {
+  await gotoPlayground(page);
+
+  for (let cycle = 0; cycle < 3; cycle++) {
+    await page.locator("#pg-start").click();
+    await expect(page.locator(".tat-root")).toHaveCount(1);
+    await expect(page.locator(".tat-overlay")).toHaveCount(1);
+
+    await page.locator("#pg-destroy").click();
+    await expect(page.locator(".tat-root")).toHaveCount(0);
+    await expect(page.locator(".tat-overlay")).toHaveCount(0);
+  }
+
+  await expect(page.locator("#pg-start")).toBeEnabled();
+});
+
 test("every navigation link resolves to a real page", async ({ page }) => {
-  await page.goto("/");
+  // A documentation page carries the sidebar; the landing page does not.
+  await page.goto("/take_a_tour/docs/");
 
   const links = await page.locator(".sidebar a").all();
   expect(links.length).toBeGreaterThanOrEqual(20);

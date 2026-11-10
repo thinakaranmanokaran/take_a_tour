@@ -1,0 +1,182 @@
+import CodeBlock from "../CodeBlock.jsx";
+import Table from "../Table.jsx";
+import Callout from "../Callout.jsx";
+
+export default function Lifecycle() {
+  return (
+    <>
+      <h1>Tour lifecycle</h1>
+      <p className="lede">
+        Four words get conflated in tour libraries. Here they mean four different things with four
+        different states.
+      </p>
+
+      <h2>The states</h2>
+
+      <CodeBlock
+        lang="text"
+        code={`                ┌──────────┐
+                │   idle   │
+                └────┬─────┘
+         start() ─────┤
+                     ▼
+    ┌──────────┐  pause()   ┌──────────┐
+    │ running  │ ─────────► │  paused  │
+    └────┬─────┘ ◄───────── └────┬─────┘
+         │        resume()       │
+         │                       │
+         ├─ complete() ─► completed ─┐
+         ├─ skip()     ─► skipped   ─┤ destroy()
+         └─ stop()     ─► stopped   ─┘
+                              ▲              │
+                              └── start() ───┘ (stopped only)
+
+              destroyed ──► (no transitions out)`}
+      />
+
+      <h2>What each method means</h2>
+
+      <Table
+        head={["Method", "State after", "Can restart?", "Means"]}
+        rows={[
+          [
+            "<code>start()</code>",
+            "<code>running</code>",
+            "from idle/stopped",
+            "Begin presenting. Repeated calls resolve to the in-flight start.",
+          ],
+          [
+            "<code>pause()</code>",
+            "<code>paused</code>",
+            "yes",
+            "Hold position. The user paused it, or another tour took over.",
+          ],
+          ["<code>resume()</code>", "<code>running</code>", "—", "Continue from the same step."],
+          [
+            "<code>complete()</code>",
+            "<code>completed</code>",
+            "<strong>no</strong>",
+            "The user finished normally. Terminal.",
+          ],
+          [
+            "<code>skip()</code>",
+            "<code>skipped</code>",
+            "<strong>no</strong>",
+            "The user explicitly opted out. Terminal.",
+          ],
+          [
+            "<code>stop()</code>",
+            "<code>stopped</code>",
+            "<strong>yes</strong>",
+            "Something else ended it. Resumable by calling <code>start()</code> again.",
+          ],
+          [
+            "<code>destroy()</code>",
+            "<code>destroyed</code>",
+            "<strong>no</strong>",
+            "Release every resource. The instance is unusable forever.",
+          ],
+        ]}
+      />
+
+      <Callout title="complete vs skip vs stop">
+        <p>
+          <strong>Complete</strong> is an outcome. <strong>Skip</strong> is a user choice.{" "}
+          <strong>Stop</strong>
+          is an intervention — the app closed it, the user logged out, the route changed. Only
+          <code>stop</code> is resumable, because only <code>stop</code> implies the tour itself is
+          still valid.
+        </p>
+      </Callout>
+
+      <h2>Illegal transitions throw</h2>
+
+      <CodeBlock
+        lang="js"
+        code={`tour.next();          // before start() -> TransitionError
+tour.next();          // after destroy()  -> TransitionError
+tour.start();         // after complete() -> TransitionError
+
+// The error carries the state that blocked it:
+try {
+  tour.next();
+} catch (error) {
+  error.name;     // "TransitionError"
+  error.from;     // "idle"
+  error.method;   // "next"
+}`}
+      />
+
+      <h2>Repeated calls are safe</h2>
+
+      <p>Every guard is written so a double-clicked button cannot corrupt anything.</p>
+
+      <CodeBlock
+        lang="js"
+        code={`await Promise.all([tour.start(), tour.start(), tour.start()]);
+// -> one tour, one overlay, one \`start\` event
+
+tour.pause(); tour.pause();   // second is a no-op
+tour.resume(); tour.resume(); // ditto
+tour.stop(); tour.stop();     // second is a no-op
+tour.destroy(); tour.destroy(); // second is a no-op, one \`destroy\` event`}
+      />
+
+      <h2>Concurrency: one active tour per document</h2>
+
+      <p>
+        Two live overlays would fight over the spotlight, the layer stack and the focus trap. The
+        <code>concurrency</code> option decides what happens instead.
+      </p>
+
+      <Table
+        head={["Policy", "Behaviour when a second tour starts"]}
+        rows={[
+          [
+            '<code>"pause-previous"</code> <span class="pill">default</span>',
+            "The running tour releases its overlay and is paused. It resumes when the new tour ends.",
+          ],
+          [
+            '<code>"stop-previous"</code>',
+            "The running tour stops. It can still be started again later.",
+          ],
+          [
+            '<code>"reject"</code>',
+            "The new tour throws <code>TransitionError</code>. The caller decides what to do.",
+          ],
+        ]}
+      />
+
+      <CodeBlock
+        lang="js"
+        code={`const tourA = createTour({ tourId: "a", steps: [/* … */] });
+const tourB = createTour({ tourId: "b", concurrency: "stop-previous", steps: [/* … */] });
+
+await tourA.start();
+await tourB.start();
+
+tourA.getState();  // "stopped"
+tourB.getState();  // "running"
+document.querySelectorAll(".tat-root").length;  // 1, always`}
+      />
+
+      <h2>Destroy is final</h2>
+
+      <p>
+        <code>destroy()</code> releases the overlay, every listener, every observer, every timer,
+        and the tour's id in the registry. Afterwards the instance rejects every method — create a
+        new tour instead.
+      </p>
+
+      <CodeBlock
+        lang="js"
+        code={`tour.destroy();
+tour.tourId;        // still readable — useful for logging
+tour.start();       // throws TransitionError
+
+// Reusing the id is fine, because destroy freed it:
+const fresh = createTour({ tourId: tour.tourId, steps: [/* … */] }); // no error`}
+      />
+    </>
+  );
+}

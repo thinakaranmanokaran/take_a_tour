@@ -20,7 +20,9 @@ export default defineConfig({
   timeout: 30_000,
 
   use: {
-    baseURL: "http://127.0.0.1:5181",
+    // Full base path: absolute `/…` paths passed to `page.goto()` resolve
+    // against the origin and would otherwise drop `/take_a_tour`.
+    baseURL: "http://127.0.0.1:5181/take_a_tour/",
     trace: "retain-on-failure",
   },
 
@@ -29,7 +31,7 @@ export default defineConfig({
   webServer: {
     // Serves apps/docs/dist directly. The build must already have run.
     command: "node tests/browser/docs-server.mjs",
-    url: "http://127.0.0.1:5181/",
+    url: "http://127.0.0.1:5181/take_a_tour/",
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
   },

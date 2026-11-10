@@ -21,26 +21,12 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Check formatting
-        run: npm run format:check
-
-      - name: Unit and integration tests
-        run: npm test
-
-      - name: Build
-        run: npm run build
-
-      - name: Runtime dependency audit
-        run: npm run check:deps
-
-      - name: Package contents audit
-        run: npm run pack:check
-
-      - name: Build documentation site
-        run: npm run docs:build
+      # One step on purpose: `npm run verify` is the same gate maintainers run
+      # locally (lint, format, tests, build, dependency audits, type tests,
+      # consumer smoke test, docs build), so CI can never drift from the
+      # documented commands.
+      - name: Verify (lint, format, tests, build, audits, docs build)
+        run: npm run verify
 
   browser-tests:
     name: Browser tests
@@ -58,12 +44,19 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Real-browser layout and accessibility tests
+      - name: Library browser tests (real layout and accessibility)
         run: npm run test:browser
+
+      # Builds the documentation site and drives it as a static GitHub Pages
+      # deployment: playground, gallery, customiser, search, 404, axe.
+      - name: Documentation site browser tests
+        run: npm run test:browser:docs
 
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report
-          path: packages/core/playwright-report/
+          path: |
+            packages/core/playwright-report/
+            packages/core/test-results/
           retention-days: 7
