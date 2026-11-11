@@ -8,7 +8,6 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
@@ -42,28 +41,28 @@ const REQUIRED_PATTERNS = [
 ];
 
 /**
- * Locate npm's CLI entry point.
+ * Resolve how to invoke npm.
  *
- * `npm` on PATH is a shell script (POSIX) or a `.cmd` shim (Windows), neither
- * of which spawns directly. Invoking the CLI through the current Node binary
- * avoids both problems and does not need `shell: true`.
+ * Prefer `npm_execpath` (set when this script runs via `npm run`), which
+ * points at npm's JS entry and works regardless of where npm is installed.
+ * Fall back to `npm` on PATH; on Windows the `.cmd` shim needs a shell.
  */
-function resolveNpmCli() {
-  const candidates = [
-    path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js"),
-    path.join(path.dirname(process.execPath), "..", "node_modules", "npm", "bin", "npm-cli.js"),
-  ];
-  for (const candidate of candidates) {
-    if (existsSync(candidate)) return candidate;
+function resolveNpm() {
+  if (process.env.npm_execpath) {
+    return { cmd: process.execPath, argsPrefix: [process.env.npm_execpath] };
   }
-  throw new Error("Could not locate npm-cli.js next to the running Node binary.");
+  if (process.platform === "win32") {
+    return { cmd: "npm.cmd", argsPrefix: [], options: { shell: true } };
+  }
+  return { cmd: "npm", argsPrefix: [] };
 }
 
 function listTarball() {
+  const npm = resolveNpm();
   const output = execFileSync(
-    process.execPath,
-    [resolveNpmCli(), "pack", "--dry-run", "--json", "--loglevel=error"],
-    { cwd: ROOT, encoding: "utf8" }
+    npm.cmd,
+    [...npm.argsPrefix, "pack", "--dry-run", "--json", "--loglevel=error"],
+    { cwd: ROOT, encoding: "utf8", ...(npm.options ?? {}) }
   );
   const parsed = JSON.parse(output);
   return parsed[0].files.map((file) => file.path);

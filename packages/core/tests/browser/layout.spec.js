@@ -22,13 +22,28 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("spotlight is positioned over the target with the configured padding", async ({ page }) => {
+  // Scroll the target into a stable viewport position and disable the tour's
+  // own scroll-into-view so no programmatic scroll can race the measurement.
+  await page.evaluate(() => {
+    document.querySelector("#target-center").scrollIntoView({ block: "center" });
+  });
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+  );
+
   await page.evaluate(() =>
     window
       .createTestTour({
         spotlightPadding: 8,
+        scrollIntoView: false,
         steps: [{ tourId: "f.center", title: "Centre", content: "Here." }],
       })
       .start()
+  );
+
+  // Let the spotlight transition settle so its bounding box is stable.
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
   );
 
   const spotlight = await box(page, ".tat-spotlight");
