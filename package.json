@@ -6,7 +6,7 @@
   "description": "Monorepo root for Take a Tour — a zero-dependency JavaScript tour library.",
   "license": "MIT",
   "engines": {
-    "node": ">=18.18.0"
+    "node": ">=22.22.0"
   },
   "workspaces": [
     "packages/*",

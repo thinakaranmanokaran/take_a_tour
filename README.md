@@ -42,6 +42,9 @@ An npm-workspaces monorepo.
 
 ## Commands
 
+The monorepo requires **Node 22.22 or newer** (the published `@take-a-tour/core`
+package itself still supports Node 18.18+).
+
 ```bash
 npm install
 
