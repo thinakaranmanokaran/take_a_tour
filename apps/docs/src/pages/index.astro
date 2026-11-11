@@ -14,7 +14,12 @@ const title = "Take a Tour — zero-dependency JavaScript product tours";
 const description = SITE.description;
 ---
 
-<SiteLayout title={title} description={description} jsonLd={[websiteJsonLd(), softwareApplicationJsonLd()]}>
+<SiteLayout
+  title={title}
+  description={description}
+  jsonLd={[websiteJsonLd(), softwareApplicationJsonLd()]}
+  rail={false}
+>
   <Home>
     <Fragment slot="hero-demo"><HeroDemo client:load /></Fragment>
     <Fragment slot="showcase"><FeatureShowcase client:visible /></Fragment>

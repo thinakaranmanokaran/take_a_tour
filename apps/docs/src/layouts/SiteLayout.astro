@@ -1,19 +1,20 @@
 ---
 /**
- * Public page layout: BaseLayout plus the site navigation rail and the page
- * content. The rail is flush with the page edge so marketing bands keep their
- * full width; `SiteSidebar` nests the current page's sections under its entry.
- * Documentation pages use `DocLayout` instead.
+ * Public page layout: BaseLayout plus the page content, with an optional site
+ * navigation rail. The rail is flush with the page edge so marketing bands keep
+ * their full width; `SiteSidebar` nests the current page's sections under its
+ * entry. Pass `rail={false}` for pages that should not show the rail (e.g. the
+ * home page). Documentation pages use `DocLayout` instead.
  */
 import BaseLayout from "./BaseLayout.astro";
 import SiteSidebar from "../components/SiteSidebar.jsx";
 
-const { title, description, jsonLd = [] } = Astro.props;
+const { title, description, jsonLd = [], rail = true } = Astro.props;
 ---
 
 <BaseLayout title={title} description={description} jsonLd={jsonLd}>
-  <div class="layout layout--site">
-    <SiteSidebar current={Astro.url.pathname} client:idle />
+  <div class:list={["layout", "layout--site", { "layout--site--no-rail": !rail }]}>
+    {rail ? <SiteSidebar current={Astro.url.pathname} client:idle /> : null}
     <main class="site-content" id="content">
       <slot />
     </main>

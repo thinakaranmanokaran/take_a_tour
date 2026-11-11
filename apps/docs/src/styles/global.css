@@ -621,6 +621,10 @@ a:hover {
   padding: 0;
 }
 
+.layout--site.layout--site--no-rail {
+  grid-template-columns: 1fr;
+}
+
 .layout--site .sidebar {
   padding: 40px 20px 40px 24px;
   border-right: 1px solid var(--border);
@@ -1953,6 +1957,7 @@ td code {
 
 .demo-frame {
   overflow: hidden;
+  color: var(--text-body);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -2020,6 +2025,7 @@ td code {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .demo-nav__item {
@@ -2057,6 +2063,7 @@ td code {
   font-size: 1.0625rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .demo-actions {
@@ -2113,6 +2120,7 @@ td code {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .demo-metric span {
