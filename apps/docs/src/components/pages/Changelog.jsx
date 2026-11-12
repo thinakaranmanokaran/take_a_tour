@@ -97,11 +97,10 @@ export default function Changelog() {
           <li>Conditional steps are evaluated once per run, not per navigation.</li>
         </ul>
 
-        <Callout title="Not published">
+        <Callout title="Published">
           <p>
-            This build has not been published to npm. The package name{" "}
-            <code>@take-a-tour/core</code> was unclaimed when checked, but a scope still needs an
-            account to publish under, and no release has been made.
+            <code>@take-a-tour/core</code> 0.1.0 is published publicly on npm. The source and
+            release history live in the GitHub repository.
           </p>
         </Callout>
       </article>

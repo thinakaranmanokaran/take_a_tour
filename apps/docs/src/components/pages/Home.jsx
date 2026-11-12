@@ -191,7 +191,7 @@ export default function Home({ heroDemo, showcase }) {
                 </button>
               </div>
               <p className="hero__meta">
-                v{SITE.version} pre-release — not on npm yet; the source lives in the{" "}
+                v{SITE.version} — published on npm; the source lives in the{" "}
                 <a href={SITE.repoUrl} target="_blank" rel="noopener noreferrer">
                   repository
                 </a>

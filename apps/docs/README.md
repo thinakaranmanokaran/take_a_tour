@@ -33,7 +33,7 @@ From the repository root:
 | Command                  | What it does                                                                                                        |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------- |
 | `npm run docs:build`     | The same docs build, from the root                                                                                  |
-| `npm run test:browser:docs` | Rebuilds the site, then runs the 30-test docs browser suite (playground, site behaviour, SEO, link crawl) against a Pages-like static server |
+| `npm run test:browser:docs` | Rebuilds the site, then runs the 31-test docs browser suite (playground, site behaviour, SEO, link crawl) against a Pages-like static server |
 
 The Playwright docs suite emulates GitHub Pages through
 `packages/core/tests/browser/docs-server.mjs`: everything is served under
@@ -143,9 +143,11 @@ is hand-written against the same palette.
 
 Two rails, both React islands whose links are rendered into the static HTML:
 
-- **Public pages** (`/`, `/examples/`, `/about/`, `/changelog/`, `/playground/`)
+- **Public pages** (`/examples/`, `/about/`, `/changelog/`, `/playground/`)
   get a left **Site** rail: Home, Docs, Playground, Examples, About, Changelog.
-  The current page's `h2` sections nest under its entry (when a page has two or
+  The **home page has no left rail** — its full-width layout is deliberate, the
+  only public page without the site rail. On pages that have the rail, the
+  current page's `h2` sections nest under its entry (when a page has two or
   more) with a scroll-spy highlight; the changelog, a run of release notes
   rather than sections, shows none. That nested list is written into the built
   HTML by the build step, so it is there before JavaScript runs and hydration
@@ -184,6 +186,6 @@ committed and no CI-specific configuration is needed, because the base path
 lives in `astro.config.mjs`.
 
 **Nothing here deploys or publishes by itself.** The Pages workflow only runs
-when the repository owner pushes to `main` or triggers it manually, and
-`@take-a-tour/core` has not been published to npm — the site's installation
-pages say so explicitly.
+when the repository owner pushes to `main` or triggers it manually. The site is
+live at <https://thinakaranmanokaran.github.io/take_a_tour/>, and
+`@take-a-tour/core@0.1.0` is published on npm.

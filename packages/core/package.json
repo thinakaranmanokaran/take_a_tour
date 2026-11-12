@@ -3,6 +3,15 @@
   "version": "0.1.0",
   "description": "Zero-dependency, framework-agnostic interactive product tours and contextual onboarding for any website.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thinakaranmanokaran/take_a_tour.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://thinakaranmanokaran.github.io/take_a_tour/",
+  "bugs": {
+    "url": "https://github.com/thinakaranmanokaran/take_a_tour/issues"
+  },
   "type": "module",
   "sideEffects": [
     "*.css"

@@ -78,9 +78,8 @@ npm ls @take-a-tour/core`}
       />
 
       <p>
-        Nothing has been published yet, so there is no upgrade to perform today. Once the first
-        release is on npm, these two commands show the installed version and whether a newer one is
-        available; the changelog always lists what changed.
+        Version 0.1.0 is the current release. These two commands show the installed version and
+        whether a newer one is available; the changelog always lists what changed.
       </p>
 
       <h3>Verifying the runtime dependency count yourself</h3>

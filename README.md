@@ -72,7 +72,8 @@ npm run dev -w @take-a-tour/example-spa-route # :5176
 
 ## Documentation
 
-The full guide lives in `apps/docs`:
+The full guide lives at **<https://thinakaranmanokaran.github.io/take_a_tour/>** (source in
+`apps/docs`):
 
 - **Getting started** — install, mark a target, run a tour
 - **[Playground](apps/docs/src/pages/playground.astro)** — edit JSON, watch the real library run
@@ -104,7 +105,7 @@ $ npm run check:deps
 Runtime dependency audit — @take-a-tour/core
 
   ok  package.json: zero runtime, peer and optional dependencies
-  ok  scanned 44 source files, 104 module specifiers
+  ok  scanned 44 source files, 106 module specifiers
 
 Zero runtime dependencies confirmed.
 ```
@@ -115,7 +116,7 @@ Zero runtime dependencies confirmed.
 | ----------------------------------------- | ------------------------ | --------------------------------------- |
 | 230 unit + integration tests               | Vitest + jsdom           | Configuration, lifecycle, positioning maths, accessibility, security, persistence |
 | 36 real-browser tests                      | Playwright + Chromium    | Real geometry, viewport flipping, scrolling, nested scroll containers, cleanup, axe-core |
-| 11 documentation tests                     | Playwright + Chromium    | Proves the playground runs the real library |
+| 31 documentation tests                     | Playwright + Chromium    | Playground, site behaviour, hydration, SEO, link crawl |
 | Clean consumer install                     | node                     | ESM import, `require()`, CSS export, `tsc` against the shipped types |
 
 jsdom has no layout engine, so anything involving geometry is verified in a real browser.
@@ -135,8 +136,9 @@ Stated honestly, and not covered by tests:
 
 ## Release status
 
-Not published. The package name `@take-a-tour/core` was unclaimed when checked, but the scope needs
-an account to publish under, and no release has been made without explicit authorisation.
+Published: [`@take-a-tour/core@0.1.0`](https://www.npmjs.com/package/@take-a-tour/core) is on npm
+under the `@take-a-tour` scope. The documentation site is live at
+<https://thinakaranmanokaran.github.io/take_a_tour/>.
 
 ## License
 

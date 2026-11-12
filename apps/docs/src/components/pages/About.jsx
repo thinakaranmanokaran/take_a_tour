@@ -83,10 +83,10 @@ export default function About() {
 
         <h2>Project status</h2>
         <p>
-          Version 0.1.0 is complete and tested, but not yet published to npm — the source lives in
-          the GitHub repository. The quality gates are real and run together: linting and
-          formatting, a unit and integration suite, a real-browser Playwright suite against the
-          built site, a zero-dependency audit and a package-content audit.
+          Version 0.1.0 is complete, tested and published to npm as <code>@take-a-tour/core</code>.
+          The quality gates are real and run together: linting and formatting, a unit and
+          integration suite, a real-browser Playwright suite against the built site, a
+          zero-dependency audit and a package-content audit.
         </p>
 
         <h2>Contributing</h2>

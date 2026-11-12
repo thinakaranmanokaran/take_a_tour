@@ -12,11 +12,10 @@ export default function GettingStarted() {
 
       <CodeBlock lang="bash" code={`npm install @take-a-tour/core`} />
 
-      <Callout title="Not on npm yet">
+      <Callout title="Published on npm">
         <p>
-          Version {SITE.version} is complete and tested, but it has not been published to the
-          registry. Until the first release, run it from the repository; the steps below apply
-          unchanged.
+          Version {SITE.version} is published publicly as <code>@take-a-tour/core</code>. It has
+          zero runtime dependencies, so the command above installs the library and nothing else.
         </p>
       </Callout>
 

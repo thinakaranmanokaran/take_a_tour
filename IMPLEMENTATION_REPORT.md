@@ -260,7 +260,7 @@ identical results after a flake fix:
 
 > Superseded by Phase 8: the site was restructured — thin `.astro` shells,
 > JSX page components, hydrated islands, GitHub Pages base path — and now
-> builds 27 routes with a 30-test browser suite.
+> builds 27 routes with a 31-test browser suite.
 
 ---
 
@@ -426,7 +426,7 @@ styling — the category scores 100.
 
 The site was restyled to a new design system: cream canvas, one hot orange,
 three type families, pill-shaped interactive elements, dark-only code wells.
-No route, DOM contract or behaviour changed — all 27 routes and the 30-test
+No route, DOM contract or behaviour changed — all 27 routes and the 31-test
 docs browser suite kept working throughout, and `packages/core` was not
 touched.
 
@@ -607,14 +607,14 @@ errors; it fails on either.
 
 The same review checked the documentation against the source and found two
 pages that would mislead a reader: Installation and Getting started told people
-to `npm install @take-a-tour/core` without saying the package is not published
-(both now carry a "not published yet" callout with the repository path), and
-Migration demonstrated an upgrade check against `0.2.0`, which does not exist
-(now `npm outdated`/`npm ls`, with an explanation that there is no upgrade to
-perform yet). Configuration gained an "Images and video" section documenting
-the only supported way to put media in a step — `unsafeHTML: true` plus
-`unsafeContent` — including the security boundary and the absence of a
-first-class media field.
+to `npm install @take-a-tour/core` without saying whether the package was
+published (both gained an explicit publication-status callout, updated when
+0.1.0 shipped), and Migration demonstrated an upgrade check against `0.2.0`,
+which does not exist (now `npm outdated`/`npm ls`, with an explanation that
+there is no upgrade to perform yet). Configuration gained an "Images and video"
+section documenting the only supported way to put media in a step — `unsafeHTML:
+true` plus `unsafeContent` — including the security boundary and the absence of
+a first-class media field.
 
 Lighthouse 13.6.0, real Chrome, against the built site over the same static
 server the browser tests use:
@@ -632,6 +632,32 @@ and style/layout dominate and TBT alone caps the score. The site's lab numbers
 are healthy (LCP under a second on desktop, CLS at or near zero), and the
 remaining weight is the agreed cost of the pure-JSX requirement, not a defect.
 The other three categories are 100 on every page measured.
+
+---
+
+## Phase 11 — Public release · complete
+
+- **Node 24 in CI.** Astro 7 requires Node >=22.22.0; the workflows pinned
+  Node 20, so `astro build` exited before producing the site. Both workflows now
+  use Node 24, and the monorepo engine requirement was raised to match. The
+  published core package keeps `node >=18.18.0`.
+- **npm resolution on GitHub Actions.** `pack-check.mjs` and
+  `consumer-install-test.mjs` assumed npm lived next to the Node binary. They
+  now prefer `npm_execpath` (set by `npm run`) and fall back to npm on PATH.
+- **Spotlight test stability.** The layout test scrolls the target into view,
+  starts the tour with `scrollIntoView: false`, and waits two animation frames
+  before measuring, removing a CI-only scroll race.
+- **Documentation deployed.** GitHub Pages serves the project site at
+  <https://thinakaranmanokaran.github.io/take_a_tour/>. All 27 routes, assets,
+  sitemap, robots.txt, `.nojekyll` and the designed 404 respond under
+  `/take_a_tour/`.
+- **Library published.** `@take-a-tour/core@0.1.0` is public on npm with zero
+  runtime dependencies. A clean registry install was verified for ESM, CommonJS,
+  the CSS export and types.
+- **Accidental root package removed.** The root package `take-a-tour-monorepo`
+  was deleted from the registry by its owner. The workspace root was renamed to
+  `take-a-tour` and remains `"private": true`, so it cannot be published by
+  accident again.
 
 ---
 
@@ -705,16 +731,8 @@ Stated honestly. None of these are covered by tests.
 
 ## Remaining work
 
-Not started, and not blocking a usable library:
+Optional, and not blocking a usable library:
 
-- **Publishing to npm.** `@take-a-tour/core` returns 404 on the registry, but a
-  scope needs an account to publish under. No release has been made and none
-  will be without explicit authorisation.
-- **First deployment.** The Pages workflow is committed and `main` has been
-  pushed, but Pages has not been enabled in repository settings, so no site has
-  been deployed yet. Enabling it is the repository owner's action
-  (Settings → Pages → Source: GitHub Actions), after which the workflow runs on
-  the next push to `main` or can be started manually.
 - **Visual regression screenshots.** The UI is verified structurally and
   behaviourally, but there is no pixel-diff baseline.
 - **Additional browsers.** Firefox and WebKit in the Playwright matrix.

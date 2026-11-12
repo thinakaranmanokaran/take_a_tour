@@ -140,7 +140,9 @@ re-emitted through `error`.
 All configuration text is inserted with `textContent`. The package contains no
 `innerHTML` outside one explicitly named, opt-in module
 (`components/content/unsafe-html.js`), no `eval`, no network access, and no
-prototype or global mutation. See `SECURITY.md`.
+prototype or global mutation. See the
+[security policy](https://github.com/thinakaranmanokaran/take_a_tour/blob/main/SECURITY.md)
+and the [security guide](https://thinakaranmanokaran.github.io/take_a_tour/docs/security/).
 
 ## Known limitations
 
@@ -149,6 +151,13 @@ prototype or global mutation. See `SECURITY.md`.
 - **Iframe** targets are not supported.
 - Spotlight movement animates `top`/`left`/`width`/`height` rather than being
   GPU-composited. This is a deliberate simplicity trade-off.
+
+## Links
+
+- **Documentation** — <https://thinakaranmanokaran.github.io/take_a_tour/>
+- **Repository** — <https://github.com/thinakaranmanokaran/take_a_tour>
+- **Issues** — <https://github.com/thinakaranmanokaran/take_a_tour/issues>
+- **Security policy** — <https://github.com/thinakaranmanokaran/take_a_tour/blob/main/SECURITY.md>
 
 ## License
 
