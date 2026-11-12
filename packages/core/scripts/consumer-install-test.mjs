@@ -35,22 +35,31 @@ function fail(message) {
   process.exit(1);
 }
 
-/** Locate npm's CLI through the running Node binary (works on every platform). */
-function resolveNpmCli() {
-  const candidates = [
-    path.join(path.dirname(process.execPath), "node_modules", "npm", "bin", "npm-cli.js"),
-    path.join(path.dirname(process.execPath), "..", "node_modules", "npm", "bin", "npm-cli.js"),
-  ];
-  for (const candidate of candidates) if (existsSync(candidate)) return candidate;
-  throw new Error("Could not locate npm-cli.js next to the running Node binary.");
+/**
+ * Resolve how to invoke npm.
+ *
+ * Prefer `npm_execpath` (set when running via `npm run`), which works
+ * regardless of where npm is installed. Fall back to `npm` on PATH.
+ */
+function resolveNpm() {
+  if (process.env.npm_execpath) {
+    return { cmd: process.execPath, argsPrefix: [process.env.npm_execpath] };
+  }
+  if (process.platform === "win32") {
+    return { cmd: "npm.cmd", argsPrefix: [], options: { shell: true } };
+  }
+  return { cmd: "npm", argsPrefix: [] };
 }
 
-const npm = (args, cwd) =>
-  execFileSync(process.execPath, [resolveNpmCli(), ...args], {
+const npm = (args, cwd) => {
+  const resolved = resolveNpm();
+  return execFileSync(resolved.cmd, [...resolved.argsPrefix, ...args], {
     cwd,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    ...(resolved.options ?? {}),
   });
+};
 
 console.log("Clean consumer installation test\n");
 
